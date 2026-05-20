@@ -59,14 +59,24 @@ class ShippingAddressAutofillPlugin
      * overwrite the address fields with the store's address.
      *
      * @param Address $subject
-     * @param Address $result   The address object (setShippingMethod returns $this)
+     * @param mixed $result   Whatever the wrapped method (or another plugin) returned.
+     *                        Magento core returns $this (the Address), but plugins from
+     *                        third-party extensions in the chain may return null/false/
+     *                        other types. We MUST pass it through unchanged in those cases.
      * @param string|null $method
-     * @return Address
+     * @return mixed
      */
-    public function afterSetShippingMethod(Address $subject, $result, $method = null): Address
+    public function afterSetShippingMethod(Address $subject, $result, $method = null)
     {
         // Defensive: not our method? Bail immediately.
         if (!is_string($method) || !str_starts_with($method, self::METHOD_PREFIX)) {
+            return $result;
+        }
+
+        // Defensive: only proceed if $result is actually an Address. If another
+        // plugin in the chain returned something else (null/false/etc), pass
+        // through unchanged — never crash mid-response with a TypeError.
+        if (!$result instanceof Address) {
             return $result;
         }
 

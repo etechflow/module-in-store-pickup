@@ -4,6 +4,30 @@ All notable changes to this module. Adheres to [Semantic Versioning](https://sem
 
 ---
 
+## [1.0.1] — 2026-05-20 — Install-on-Hyvä hotfix
+
+Two real bugs surfaced during the first install on a Hyvä client store. Both fixed.
+
+### Fixed
+
+- **`ShippingAddressAutofillPlugin::afterSetShippingMethod` strict return type.** The method signature used `: Address` strict return type and unconditionally returned `$result`. If any third-party plugin earlier in the plugin chain returned `null` / `false` / a non-`Address` value (legal under Magento's plugin contract), our plugin would emit a `TypeError` *mid-response*. Because the fatal happened after output buffering started, nginx saw a 200 status with malformed chunked output — and `var/log/exception.log` stayed empty because a TypeError isn't an Exception. Symptom: admin/category pages randomly broken with "Backend fetch failed" while no error appeared in logs.
+  - **Fix:** removed the strict return type. Added an `instanceof Address` guard before our autofill logic runs. Non-`Address` `$result` values now pass through unchanged.
+- **`magewirephp/magewire` was in `suggest` instead of `require`.** The `Magewire/Checkout/StorePicker.php` class extends `\Magewirephp\Magewire\Component`. On a store without Magewire installed (Hyvä Theme without Hyvä Checkout, or a clean Open Source install), `bin/magento setup:di:compile` would attempt to compile the class against the missing parent and either fail or produce broken interceptors in `generated/code/`. The CHANGELOG entry for v1.0.0 incorrectly claimed the file would "sit inert on disk" — di:compile scans every class regardless.
+  - **Fix:** moved `magewirephp/magewire: ^1.0||^2.0` into `require`. Composer will now install it transitively (it's a tiny package — single PHP file plus a few helper classes — and it's the parent of every Hyvä Checkout component anyway).
+
+### Migration
+
+```
+composer update etechflow/module-in-store-pickup
+bin/magento setup:upgrade
+bin/magento setup:di:compile
+docker exec <php-fpm-container> kill -USR2 1   # or restart php-fpm — clears OPcache
+```
+
+If you're upgrading from v1.0.0 on a host with `opcache.validate_timestamps=0`, you MUST restart php-fpm after `setup:di:compile` — otherwise stale compiled interceptors stay in memory and you see the same "two workers returning different output sizes" symptom that masked Bug 1.
+
+---
+
 ## [1.0.0] — 2026-05-20 — Click & Collect for Magento 2
 
 First commercial release. Click & Collect / in-store pickup module with the differentiators competing modules can't ship: **auto-fill shipping address from the picked store** (kills the wrong-tax bug 8+ competitors all have) and a **standalone-first architecture** that gets richer when paired with the rest of the eTechFlow suite.

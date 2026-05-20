@@ -1,0 +1,241 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="etechflow" translate="label" sortOrder="400">
+            <label>eTechFlow</label>
+        </tab>
+        <section id="etechflow_instorepickup"
+                 translate="label"
+                 type="text"
+                 sortOrder="180"
+                 showInDefault="1"
+                 showInWebsite="1"
+                 showInStore="1">
+            <label>In-Store Pickup</label>
+            <tab>etechflow</tab>
+            <resource>ETechFlow_InStorePickup::config</resource>
+
+            <group id="license"
+                   translate="label"
+                   type="text"
+                   sortOrder="5"
+                   showInDefault="1"
+                   showInWebsite="0"
+                   showInStore="0">
+                <label>License</label>
+                <field id="production_environment"
+                       translate="label comment tooltip"
+                       type="select"
+                       sortOrder="5"
+                       showInDefault="1"
+                       showInWebsite="0"
+                       showInStore="0">
+                    <label>Production Environment</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <tooltip>Yes for live sites, No for dev/staging on non-standard domains.</tooltip>
+                    <comment><![CDATA[
+                        <strong>Yes</strong> = the module checks the licence key against the current domain.<br/>
+                        <strong>No</strong> = the module runs at full features without a licence — for non-standard dev domains.
+                    ]]></comment>
+                </field>
+                <field id="license_key"
+                       translate="label comment tooltip"
+                       type="text"
+                       sortOrder="10"
+                       showInDefault="1"
+                       showInWebsite="0"
+                       showInStore="0">
+                    <label>License Key</label>
+                    <tooltip>Paste your purchase-email key. Bound to the production domain.</tooltip>
+                    <comment><![CDATA[
+                        Paste the key from your purchase email. Bought the eTechFlow bundle?
+                        Enter the bundle key in any module's License section — activates every eTechFlow module at once.
+                    ]]></comment>
+                </field>
+            </group>
+
+            <group id="general"
+                   translate="label"
+                   type="text"
+                   sortOrder="10"
+                   showInDefault="1"
+                   showInWebsite="1"
+                   showInStore="1">
+                <label>General Settings</label>
+                <field id="enabled"
+                       translate="label comment tooltip"
+                       type="select"
+                       sortOrder="10"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>Enable Module</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <tooltip>Master on/off — when No, the carrier hides from checkout.</tooltip>
+                    <comment><![CDATA[
+                        <strong>Yes</strong> = "Pick up in store" appears at checkout (when at least one store is active).<br/>
+                        <strong>No</strong> = the module does nothing. The carrier doesn't appear.
+                    ]]></comment>
+                </field>
+                <field id="pickup_method_title"
+                       translate="label comment"
+                       type="text"
+                       sortOrder="20"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>Carrier Title at Checkout</label>
+                    <comment>The carrier title customers see at the shipping step. Default: "Pick up in store".</comment>
+                </field>
+                <field id="pickup_method_description"
+                       translate="label comment"
+                       type="text"
+                       sortOrder="30"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>Method Description</label>
+                    <comment>One-line description shown under the radio option.</comment>
+                </field>
+                <field id="autofill_shipping_address"
+                       translate="label comment tooltip"
+                       type="select"
+                       sortOrder="40"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>Auto-fill Shipping Address from Picked Store</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <tooltip>Yes (default) — fixes the wrong-tax bug every other C&amp;C module suffers from.</tooltip>
+                    <comment><![CDATA[
+                        <strong>Yes</strong> (recommended) = when the customer picks a store, their shipping address
+                        on the order is automatically set to the store's address. This fixes the universal C&amp;C bug
+                        where Magento charges tax based on the customer's home address even though they're collecting
+                        from your shop.<br/>
+                        <strong>No</strong> = the customer enters their home address (the legacy behaviour every other
+                        Click &amp; Collect module ships with). Only use if your tax engine is configured to ignore
+                        this for pickup orders.
+                    ]]></comment>
+                </field>
+                <field id="require_pickup_window"
+                       translate="label comment"
+                       type="select"
+                       sortOrder="50"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>Require Pickup Window Selection</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[
+                        <strong>Yes</strong> = customer must pick a window before completing checkout.<br/>
+                        <strong>No</strong> = window is optional. The order falls back to "next available pickup slot".
+                    ]]></comment>
+                </field>
+                <field id="pickup_code_length"
+                       translate="label comment"
+                       type="text"
+                       sortOrder="60"
+                       showInDefault="1"
+                       showInWebsite="0"
+                       showInStore="0">
+                    <label>Pickup Code Length</label>
+                    <comment>Digits in the customer-facing pickup code. Default 6. Range 4-8.</comment>
+                </field>
+            </group>
+
+            <group id="integrations"
+                   translate="label"
+                   type="text"
+                   sortOrder="20"
+                   showInDefault="1"
+                   showInWebsite="1"
+                   showInStore="1">
+                <label>eTechFlow Suite Integrations</label>
+                <comment><![CDATA[
+                    Each toggle activates a richer behaviour when the matching eTechFlow module
+                    is installed. With none installed, the module works fine on its own — these
+                    just unlock extra value when you've bought the bundle.
+                ]]></comment>
+
+                <field id="use_nde_eligibility"
+                       translate="label comment"
+                       type="select"
+                       sortOrder="10"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>Use NDE for Stock Eligibility</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[
+                        Only effective when <em>ETechFlow_NextDayEligibility</em> is installed. When Yes, ISP uses NDE's
+                        rich rules engine (drop-ship, supplier mode, force-standard overrides) to decide if a product
+                        is picklable. When No (or NDE not installed), ISP falls back to a simple MSI source-stock check.
+                    ]]></comment>
+                </field>
+                <field id="use_dd_time_intervals"
+                       translate="label comment"
+                       type="select"
+                       sortOrder="20"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>Reuse DD Time Intervals as Pickup Windows</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[
+                        Only effective when <em>ETechFlow_DeliveryDate</em> is installed. When Yes, the pickup-window
+                        slot list reuses DD's configured time intervals — one set of slots covers both delivery + pickup.
+                        When No, ISP uses its own Pickup Windows admin section.
+                    ]]></comment>
+                </field>
+                <field id="use_bed_eta"
+                       translate="label comment"
+                       type="select"
+                       sortOrder="30"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>Use BED ETA for Backorder Pickup Dates</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[
+                        Only effective when <em>ETechFlow_BackorderEtaDisplay</em> is installed. When Yes, the
+                        pickup-ready date for a backorder item pulls from BED's per-product ETA attribute. When No,
+                        ISP shows a generic "Available for pickup once restocked" message.
+                    ]]></comment>
+                </field>
+            </group>
+
+            <group id="notifications"
+                   translate="label"
+                   type="text"
+                   sortOrder="30"
+                   showInDefault="1"
+                   showInWebsite="1"
+                   showInStore="1">
+                <label>Notifications</label>
+                <field id="send_pickup_ready"
+                       translate="label comment"
+                       type="select"
+                       sortOrder="10"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>Send "Ready for Pickup" Email</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>When admin marks an order ready, customer gets an email with the pickup code.</comment>
+                </field>
+                <field id="send_staff_alert"
+                       translate="label comment"
+                       type="select"
+                       sortOrder="20"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>Send Staff Notification on New Pickup Order</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>When an order picks "in-store pickup", staff at that store get an email alert.</comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

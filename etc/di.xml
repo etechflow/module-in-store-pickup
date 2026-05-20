@@ -1,0 +1,151 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
+    <!-- Service-contract preferences (all 5 entities) -->
+    <preference for="ETechFlow\InStorePickup\Api\Data\StoreInterface"
+                type="ETechFlow\InStorePickup\Model\Store"/>
+    <preference for="ETechFlow\InStorePickup\Api\StoreRepositoryInterface"
+                type="ETechFlow\InStorePickup\Model\StoreRepository"/>
+
+    <preference for="ETechFlow\InStorePickup\Api\Data\TagInterface"
+                type="ETechFlow\InStorePickup\Model\Tag"/>
+    <preference for="ETechFlow\InStorePickup\Api\TagRepositoryInterface"
+                type="ETechFlow\InStorePickup\Model\TagRepository"/>
+
+    <preference for="ETechFlow\InStorePickup\Api\Data\AmenityInterface"
+                type="ETechFlow\InStorePickup\Model\Amenity"/>
+    <preference for="ETechFlow\InStorePickup\Api\AmenityRepositoryInterface"
+                type="ETechFlow\InStorePickup\Model\AmenityRepository"/>
+
+    <preference for="ETechFlow\InStorePickup\Api\Data\PickupWindowInterface"
+                type="ETechFlow\InStorePickup\Model\PickupWindow"/>
+    <preference for="ETechFlow\InStorePickup\Api\PickupWindowRepositoryInterface"
+                type="ETechFlow\InStorePickup\Model\PickupWindowRepository"/>
+
+    <preference for="ETechFlow\InStorePickup\Api\Data\HolidayInterface"
+                type="ETechFlow\InStorePickup\Model\Holiday"/>
+    <preference for="ETechFlow\InStorePickup\Api\HolidayRepositoryInterface"
+                type="ETechFlow\InStorePickup\Model\HolidayRepository"/>
+
+    <!-- Verify CLI registration. -->
+    <type name="Magento\Framework\Console\CommandList">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="etechflow_isp_verify"
+                      xsi:type="object">ETechFlow\InStorePickup\Console\Command\VerifyCommand</item>
+                <item name="etechflow_isp_import_holidays"
+                      xsi:type="object">ETechFlow\InStorePickup\Console\Command\ImportHolidaysCommand</item>
+                <item name="etechflow_isp_integration_test"
+                      xsi:type="object">ETechFlow\InStorePickup\Console\Command\IntegrationTestCommand</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- UI Component grid data sources -->
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="etechflow_isp_store_listing_data_source"
+                      xsi:type="string">ETechFlow\InStorePickup\Model\ResourceModel\Store\Grid\Collection</item>
+                <item name="etechflow_isp_tag_listing_data_source"
+                      xsi:type="string">ETechFlow\InStorePickup\Model\ResourceModel\Tag\Grid\Collection</item>
+                <item name="etechflow_isp_amenity_listing_data_source"
+                      xsi:type="string">ETechFlow\InStorePickup\Model\ResourceModel\Amenity\Grid\Collection</item>
+                <item name="etechflow_isp_pickupwindow_listing_data_source"
+                      xsi:type="string">ETechFlow\InStorePickup\Model\ResourceModel\PickupWindow\Grid\Collection</item>
+                <item name="etechflow_isp_holiday_listing_data_source"
+                      xsi:type="string">ETechFlow\InStorePickup\Model\ResourceModel\Holiday\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- Grid collection wirings -->
+    <virtualType name="ETechFlow\InStorePickup\Model\ResourceModel\Store\Grid\Collection"
+                 type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">etechflow_isp_store</argument>
+            <argument name="resourceModel" xsi:type="string">ETechFlow\InStorePickup\Model\ResourceModel\Store</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="ETechFlow\InStorePickup\Model\ResourceModel\Tag\Grid\Collection"
+                 type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">etechflow_isp_tag</argument>
+            <argument name="resourceModel" xsi:type="string">ETechFlow\InStorePickup\Model\ResourceModel\Tag</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="ETechFlow\InStorePickup\Model\ResourceModel\Amenity\Grid\Collection"
+                 type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">etechflow_isp_amenity</argument>
+            <argument name="resourceModel" xsi:type="string">ETechFlow\InStorePickup\Model\ResourceModel\Amenity</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="ETechFlow\InStorePickup\Model\ResourceModel\PickupWindow\Grid\Collection"
+                 type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">etechflow_isp_pickup_window</argument>
+            <argument name="resourceModel" xsi:type="string">ETechFlow\InStorePickup\Model\ResourceModel\PickupWindow</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="ETechFlow\InStorePickup\Model\ResourceModel\Holiday\Grid\Collection"
+                 type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">etechflow_isp_holiday</argument>
+            <argument name="resourceModel" xsi:type="string">ETechFlow\InStorePickup\Model\ResourceModel\Holiday</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- UI Component Form DataProviders -->
+    <type name="ETechFlow\InStorePickup\Ui\Component\Form\DataProvider">
+        <arguments>
+            <argument name="name" xsi:type="string">etechflow_isp_store_form_data_source</argument>
+            <argument name="primaryFieldName" xsi:type="string">store_id</argument>
+            <argument name="requestFieldName" xsi:type="string">store_id</argument>
+        </arguments>
+    </type>
+
+    <type name="ETechFlow\InStorePickup\Ui\Component\Form\TagDataProvider">
+        <arguments>
+            <argument name="name" xsi:type="string">etechflow_isp_tag_form_data_source</argument>
+            <argument name="primaryFieldName" xsi:type="string">tag_id</argument>
+            <argument name="requestFieldName" xsi:type="string">tag_id</argument>
+        </arguments>
+    </type>
+
+    <type name="ETechFlow\InStorePickup\Ui\Component\Form\AmenityDataProvider">
+        <arguments>
+            <argument name="name" xsi:type="string">etechflow_isp_amenity_form_data_source</argument>
+            <argument name="primaryFieldName" xsi:type="string">amenity_id</argument>
+            <argument name="requestFieldName" xsi:type="string">amenity_id</argument>
+        </arguments>
+    </type>
+
+    <type name="ETechFlow\InStorePickup\Ui\Component\Form\PickupWindowDataProvider">
+        <arguments>
+            <argument name="name" xsi:type="string">etechflow_isp_pickupwindow_form_data_source</argument>
+            <argument name="primaryFieldName" xsi:type="string">window_id</argument>
+            <argument name="requestFieldName" xsi:type="string">window_id</argument>
+        </arguments>
+    </type>
+
+    <type name="ETechFlow\InStorePickup\Ui\Component\Form\HolidayDataProvider">
+        <arguments>
+            <argument name="name" xsi:type="string">etechflow_isp_holiday_form_data_source</argument>
+            <argument name="primaryFieldName" xsi:type="string">holiday_id</argument>
+            <argument name="requestFieldName" xsi:type="string">holiday_id</argument>
+        </arguments>
+    </type>
+
+    <!-- Phase 7: Auto-fill shipping address from picked store (the killer feature) -->
+    <type name="Magento\Quote\Model\Quote\Address">
+        <plugin name="etechflow_isp_autofill_shipping_address"
+                type="ETechFlow\InStorePickup\Plugin\Quote\ShippingAddressAutofillPlugin"
+                sortOrder="100"/>
+    </type>
+</config>

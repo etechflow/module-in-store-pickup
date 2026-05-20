@@ -1,0 +1,132 @@
+<?xml version="1.0"?>
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+
+    <argument name="data" xsi:type="array">
+        <item name="js_config" xsi:type="array">
+            <item name="provider" xsi:type="string">etechflow_isp_pickupwindow_form.etechflow_isp_pickupwindow_form_data_source</item>
+        </item>
+        <item name="label" xsi:type="string" translate="true">Pickup Window</item>
+        <item name="template" xsi:type="string">templates/form/collapsible</item>
+    </argument>
+
+    <settings>
+        <buttons>
+            <button name="back" class="ETechFlow\InStorePickup\Block\Adminhtml\PickupWindow\BackButton"/>
+            <button name="delete" class="ETechFlow\InStorePickup\Block\Adminhtml\PickupWindow\DeleteButton"/>
+            <button name="save" class="ETechFlow\InStorePickup\Block\Adminhtml\PickupWindow\SaveButton"/>
+        </buttons>
+        <namespace>etechflow_isp_pickupwindow_form</namespace>
+        <dataScope>data</dataScope>
+        <deps>
+            <dep>etechflow_isp_pickupwindow_form.etechflow_isp_pickupwindow_form_data_source</dep>
+        </deps>
+    </settings>
+
+    <dataSource name="etechflow_isp_pickupwindow_form_data_source">
+        <argument name="data" xsi:type="array">
+            <item name="js_config" xsi:type="array">
+                <item name="component" xsi:type="string">Magento_Ui/js/form/provider</item>
+            </item>
+        </argument>
+        <settings>
+            <submitUrl path="*/*/save"/>
+        </settings>
+        <dataProvider class="ETechFlow\InStorePickup\Ui\Component\Form\PickupWindowDataProvider"
+                      name="etechflow_isp_pickupwindow_form_data_source">
+            <settings>
+                <requestFieldName>window_id</requestFieldName>
+                <primaryFieldName>window_id</primaryFieldName>
+            </settings>
+        </dataProvider>
+    </dataSource>
+
+    <fieldset name="general">
+        <settings>
+            <label translate="true">Pickup Window Details</label>
+        </settings>
+        <htmlContent name="pickup_window_tz_note">
+            <block name="pickup_window_tz_note_block"
+                   class="ETechFlow\InStorePickup\Block\Adminhtml\Form\TimezoneNote"/>
+        </htmlContent>
+
+        <field name="window_id" formElement="input">
+            <settings>
+                <dataType>text</dataType>
+                <visible>false</visible>
+                <dataScope>window_id</dataScope>
+            </settings>
+        </field>
+        <field name="label" formElement="input">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Label</label>
+                <dataScope>label</dataScope>
+                <notice translate="true">Display label — e.g. "Morning (9am-12pm)", "Afternoon (1pm-5pm)".</notice>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                </validation>
+            </settings>
+        </field>
+        <field name="code" formElement="input">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Code</label>
+                <dataScope>code</dataScope>
+                <notice translate="true">Short URL-safe identifier — letters, numbers, dashes only.</notice>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                </validation>
+            </settings>
+        </field>
+        <field name="start_time" formElement="input">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Start Time</label>
+                <dataScope>start_time</dataScope>
+                <notice translate="true">24-hour format — HH:MM (e.g. 09:00).</notice>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                </validation>
+            </settings>
+        </field>
+        <field name="end_time" formElement="input">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">End Time</label>
+                <dataScope>end_time</dataScope>
+                <notice translate="true">24-hour format — HH:MM (e.g. 17:00). Must be after start time.</notice>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                </validation>
+            </settings>
+        </field>
+        <field name="capacity" formElement="input">
+            <settings>
+                <dataType>number</dataType>
+                <label translate="true">Capacity</label>
+                <dataScope>capacity</dataScope>
+                <notice translate="true">Maximum orders per store per day in this window. Use 0 for unlimited.</notice>
+            </settings>
+        </field>
+        <field name="sort_order" formElement="input">
+            <settings>
+                <dataType>number</dataType>
+                <label translate="true">Sort Order</label>
+                <dataScope>sort_order</dataScope>
+            </settings>
+        </field>
+        <field name="is_active" formElement="checkbox">
+            <settings>
+                <dataType>boolean</dataType>
+                <label translate="true">Active</label>
+                <dataScope>is_active</dataScope>
+                <prefer>toggle</prefer>
+                <valueMap>
+                    <map name="false" xsi:type="number">0</map>
+                    <map name="true" xsi:type="number">1</map>
+                </valueMap>
+            </settings>
+        </field>
+    </fieldset>
+</form>

@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Email:etc/email_templates.xsd">
+    <template id="etechflow_isp_staff_alert"
+              label="ETechFlow ISP — New Pickup Order Alert (to store staff)"
+              file="staff_alert.html"
+              type="html"
+              module="ETechFlow_InStorePickup"
+              area="frontend"/>
+    <template id="etechflow_isp_pickup_ready"
+              label="ETechFlow ISP — Order Ready for Pickup (to customer)"
+              file="pickup_ready.html"
+              type="html"
+              module="ETechFlow_InStorePickup"
+              area="frontend"/>
+</config>

@@ -1,0 +1,291 @@
+<?xml version="1.0"?>
+<!--
+    ETechFlow_InStorePickup schema — 10 tables.
+
+    Design notes:
+
+      * All FKs ON DELETE CASCADE from store_id so deleting a store
+        cleans up its hours, exceptions, amenity/tag links, and
+        per-store window overrides automatically.
+
+      * Holidays are global by default and apply to all stores
+        UNLESS a row in `etechflow_isp_store_holiday_exclusion`
+        exists for (store_id, holiday_id) — opt-out model.
+
+      * Pickup windows are global templates; per-store overrides
+        let a store change capacity / disable a global window /
+        define its own without touching the template.
+
+      * `code` columns are unique short identifiers used in URLs +
+        CLI commands — separate from human-readable `name`.
+
+      * Indexes on every column that participates in customer-facing
+        queries: store status, store code, holiday date, tag code.
+-->
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+
+    <!-- ============================================================
+         1. STORES
+         ============================================================ -->
+    <table name="etechflow_isp_store" resource="default" engine="innodb" comment="ETechFlow ISP physical stores / pickup locations">
+        <column xsi:type="int" name="store_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Primary key — store id"/>
+        <column xsi:type="varchar" name="code" length="64" nullable="false" comment="Unique short identifier (URL + CLI safe)"/>
+        <column xsi:type="varchar" name="name" length="255" nullable="false" comment="Human-readable store name"/>
+        <column xsi:type="smallint" name="is_active" padding="2" unsigned="true" nullable="false" default="1" comment="0 = hidden from customers, admin only"/>
+        <column xsi:type="text" name="description" nullable="true" comment="Rich text — shown on storefront store page"/>
+        <column xsi:type="text" name="pickup_instructions" nullable="true" comment="Plain text — shown on pickup-ready email"/>
+        <column xsi:type="varchar" name="street" length="255" nullable="true" comment="Street address line 1+2"/>
+        <column xsi:type="varchar" name="city" length="128" nullable="true" comment="City"/>
+        <column xsi:type="varchar" name="region" length="128" nullable="true" comment="Region / state / county"/>
+        <column xsi:type="varchar" name="postcode" length="32" nullable="true" comment="Postal / zip code"/>
+        <column xsi:type="varchar" name="country_code" length="2" nullable="true" comment="ISO 3166-1 alpha-2"/>
+        <column xsi:type="decimal" name="latitude" precision="10" scale="7" nullable="true" comment="For map view (v1.1+)"/>
+        <column xsi:type="decimal" name="longitude" precision="10" scale="7" nullable="true" comment="For map view (v1.1+)"/>
+        <column xsi:type="varchar" name="phone" length="32" nullable="true" comment="Public phone number"/>
+        <column xsi:type="varchar" name="email" length="128" nullable="true" comment="Public email + staff-notification target"/>
+        <column xsi:type="varchar" name="manager_name" length="128" nullable="true" comment="Store manager name"/>
+        <column xsi:type="varchar" name="image" length="255" nullable="true" comment="Hero image filename (relative to pub/media/etechflow/isp/)"/>
+        <column xsi:type="int" name="sort_order" padding="10" unsigned="true" nullable="false" default="0" comment="Display order in admin grid + storefront list"/>
+        <column xsi:type="varchar" name="msi_source_code" length="64" nullable="true" comment="Optional link to a Magento MSI source. When set, stock checks consult this source."/>
+        <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="Created at"/>
+        <column xsi:type="timestamp" name="updated_at" on_update="true" nullable="false" default="CURRENT_TIMESTAMP" comment="Updated at"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="store_id"/>
+        </constraint>
+        <constraint xsi:type="unique" referenceId="ETECHFLOW_ISP_STORE_CODE">
+            <column name="code"/>
+        </constraint>
+        <index referenceId="ETECHFLOW_ISP_STORE_IS_ACTIVE" indexType="btree">
+            <column name="is_active"/>
+        </index>
+        <index referenceId="ETECHFLOW_ISP_STORE_SORT_ORDER" indexType="btree">
+            <column name="sort_order"/>
+        </index>
+        <index referenceId="ETECHFLOW_ISP_STORE_POSTCODE" indexType="btree">
+            <column name="postcode"/>
+        </index>
+    </table>
+
+    <!-- ============================================================
+         2. STORE HOURS (regular weekly schedule)
+         ============================================================ -->
+    <table name="etechflow_isp_store_hours" resource="default" engine="innodb" comment="ETechFlow ISP regular weekly opening hours per store">
+        <column xsi:type="int" name="hours_id" padding="10" unsigned="true" nullable="false" identity="true" comment="PK"/>
+        <column xsi:type="int" name="store_id" padding="10" unsigned="true" nullable="false" comment="FK to etechflow_isp_store"/>
+        <column xsi:type="smallint" name="weekday" padding="2" unsigned="true" nullable="false" comment="0 = Sunday .. 6 = Saturday"/>
+        <column xsi:type="smallint" name="is_closed" padding="2" unsigned="true" nullable="false" default="0" comment="If 1, store is closed this weekday (open/close ignored)"/>
+        <column xsi:type="varchar" name="open_time" length="5" nullable="true" comment="HH:MM (24h)"/>
+        <column xsi:type="varchar" name="close_time" length="5" nullable="true" comment="HH:MM (24h)"/>
+        <column xsi:type="varchar" name="break_start" length="5" nullable="true" comment="HH:MM (24h) — lunch / break start"/>
+        <column xsi:type="varchar" name="break_end" length="5" nullable="true" comment="HH:MM (24h) — lunch / break end"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="hours_id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="ETECHFLOW_ISP_STORE_HOURS_STORE_FK"
+                    table="etechflow_isp_store_hours" column="store_id"
+                    referenceTable="etechflow_isp_store" referenceColumn="store_id" onDelete="CASCADE"/>
+        <constraint xsi:type="unique" referenceId="ETECHFLOW_ISP_STORE_HOURS_STORE_WEEKDAY">
+            <column name="store_id"/>
+            <column name="weekday"/>
+        </constraint>
+    </table>
+
+    <!-- ============================================================
+         3. STORE EXCEPTION DAYS (specific-date overrides — closed,
+             reduced hours, special hours)
+         ============================================================ -->
+    <table name="etechflow_isp_store_exception" resource="default" engine="innodb" comment="ETechFlow ISP per-store specific-date hour overrides">
+        <column xsi:type="int" name="exception_id" padding="10" unsigned="true" nullable="false" identity="true" comment="PK"/>
+        <column xsi:type="int" name="store_id" padding="10" unsigned="true" nullable="false" comment="FK to etechflow_isp_store"/>
+        <column xsi:type="date" name="exception_date" nullable="false" comment="YYYY-MM-DD"/>
+        <column xsi:type="smallint" name="is_closed" padding="2" unsigned="true" nullable="false" default="1" comment="If 1, store is closed this date entirely"/>
+        <column xsi:type="varchar" name="open_time" length="5" nullable="true" comment="HH:MM override (when is_closed = 0)"/>
+        <column xsi:type="varchar" name="close_time" length="5" nullable="true" comment="HH:MM override"/>
+        <column xsi:type="varchar" name="reason" length="255" nullable="true" comment="Customer-facing label (Christmas Eve, Stocktake, etc.)"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="exception_id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="ETECHFLOW_ISP_EXC_STORE_FK"
+                    table="etechflow_isp_store_exception" column="store_id"
+                    referenceTable="etechflow_isp_store" referenceColumn="store_id" onDelete="CASCADE"/>
+        <constraint xsi:type="unique" referenceId="ETECHFLOW_ISP_EXC_STORE_DATE">
+            <column name="store_id"/>
+            <column name="exception_date"/>
+        </constraint>
+        <index referenceId="ETECHFLOW_ISP_EXC_DATE" indexType="btree">
+            <column name="exception_date"/>
+        </index>
+    </table>
+
+    <!-- ============================================================
+         4. GLOBAL HOLIDAYS (catalog — applied to all stores by default)
+         ============================================================ -->
+    <table name="etechflow_isp_holiday" resource="default" engine="innodb" comment="ETechFlow ISP global holiday catalog">
+        <column xsi:type="int" name="holiday_id" padding="10" unsigned="true" nullable="false" identity="true" comment="PK"/>
+        <column xsi:type="varchar" name="name" length="128" nullable="false" comment="Label (Christmas Day, etc.)"/>
+        <column xsi:type="date" name="holiday_date" nullable="false" comment="Date for this year. Annual recurrence handled via is_recurring flag."/>
+        <column xsi:type="smallint" name="is_recurring" padding="2" unsigned="true" nullable="false" default="0" comment="0 = single year only, 1 = recurs annually on same M-D"/>
+        <column xsi:type="smallint" name="is_closed" padding="2" unsigned="true" nullable="false" default="1" comment="1 = stores closed all day; 0 = use reduced_open/close instead"/>
+        <column xsi:type="varchar" name="reduced_open" length="5" nullable="true" comment="HH:MM (when is_closed = 0) — applied to all stores not explicitly excluded"/>
+        <column xsi:type="varchar" name="reduced_close" length="5" nullable="true" comment="HH:MM"/>
+        <column xsi:type="varchar" name="country_code" length="2" nullable="true" comment="ISO country code if from a public-holidays seed (GB/IE/US/...). NULL = custom."/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="holiday_id"/>
+        </constraint>
+        <index referenceId="ETECHFLOW_ISP_HOLIDAY_DATE" indexType="btree">
+            <column name="holiday_date"/>
+        </index>
+        <index referenceId="ETECHFLOW_ISP_HOLIDAY_RECURRING" indexType="btree">
+            <column name="is_recurring"/>
+        </index>
+    </table>
+
+    <!-- ============================================================
+         5. PER-STORE HOLIDAY EXCLUSION (opt-out from a global holiday)
+         ============================================================ -->
+    <table name="etechflow_isp_store_holiday_exclusion" resource="default" engine="innodb" comment="ETechFlow ISP per-store opt-out from a global holiday (rare — most merchants want all stores closed on all holidays)">
+        <column xsi:type="int" name="exclusion_id" padding="10" unsigned="true" nullable="false" identity="true" comment="PK"/>
+        <column xsi:type="int" name="store_id" padding="10" unsigned="true" nullable="false" comment="FK to etechflow_isp_store"/>
+        <column xsi:type="int" name="holiday_id" padding="10" unsigned="true" nullable="false" comment="FK to etechflow_isp_holiday"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="exclusion_id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="ETECHFLOW_ISP_HOLIDAY_EXC_STORE_FK"
+                    table="etechflow_isp_store_holiday_exclusion" column="store_id"
+                    referenceTable="etechflow_isp_store" referenceColumn="store_id" onDelete="CASCADE"/>
+        <constraint xsi:type="foreign" referenceId="ETECHFLOW_ISP_HOLIDAY_EXC_HOLIDAY_FK"
+                    table="etechflow_isp_store_holiday_exclusion" column="holiday_id"
+                    referenceTable="etechflow_isp_holiday" referenceColumn="holiday_id" onDelete="CASCADE"/>
+        <constraint xsi:type="unique" referenceId="ETECHFLOW_ISP_HOLIDAY_EXC_STORE_HOLIDAY">
+            <column name="store_id"/>
+            <column name="holiday_id"/>
+        </constraint>
+    </table>
+
+    <!-- ============================================================
+         6. AMENITIES (global catalog — merchant-defined)
+         ============================================================ -->
+    <table name="etechflow_isp_amenity" resource="default" engine="innodb" comment="ETechFlow ISP global amenities catalog (Parking, Coffee, Wheelchair access, etc.)">
+        <column xsi:type="int" name="amenity_id" padding="10" unsigned="true" nullable="false" identity="true" comment="PK"/>
+        <column xsi:type="varchar" name="code" length="64" nullable="false" comment="Unique short identifier"/>
+        <column xsi:type="varchar" name="label" length="128" nullable="false" comment="Display label"/>
+        <column xsi:type="varchar" name="icon" length="64" nullable="true" comment="Tabler icon name (or empty for generic dot)"/>
+        <column xsi:type="int" name="sort_order" padding="10" unsigned="true" nullable="false" default="0" comment="Display order"/>
+        <column xsi:type="smallint" name="is_active" padding="2" unsigned="true" nullable="false" default="1" comment="0 = soft-deleted; existing per-store assignments preserved"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="amenity_id"/>
+        </constraint>
+        <constraint xsi:type="unique" referenceId="ETECHFLOW_ISP_AMENITY_CODE">
+            <column name="code"/>
+        </constraint>
+    </table>
+
+    <!-- ============================================================
+         7. STORE ↔ AMENITY LINK (many-to-many)
+         ============================================================ -->
+    <table name="etechflow_isp_store_amenity" resource="default" engine="innodb" comment="ETechFlow ISP store-to-amenity many-to-many link">
+        <column xsi:type="int" name="link_id" padding="10" unsigned="true" nullable="false" identity="true" comment="PK"/>
+        <column xsi:type="int" name="store_id" padding="10" unsigned="true" nullable="false" comment="FK"/>
+        <column xsi:type="int" name="amenity_id" padding="10" unsigned="true" nullable="false" comment="FK"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="link_id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="ETECHFLOW_ISP_AMEN_STORE_FK"
+                    table="etechflow_isp_store_amenity" column="store_id"
+                    referenceTable="etechflow_isp_store" referenceColumn="store_id" onDelete="CASCADE"/>
+        <constraint xsi:type="foreign" referenceId="ETECHFLOW_ISP_AMEN_AMEN_FK"
+                    table="etechflow_isp_store_amenity" column="amenity_id"
+                    referenceTable="etechflow_isp_amenity" referenceColumn="amenity_id" onDelete="CASCADE"/>
+        <constraint xsi:type="unique" referenceId="ETECHFLOW_ISP_AMEN_STORE_AMEN">
+            <column name="store_id"/>
+            <column name="amenity_id"/>
+        </constraint>
+    </table>
+
+    <!-- ============================================================
+         8. STORE TAGS (global catalog — categorization)
+         ============================================================ -->
+    <table name="etechflow_isp_tag" resource="default" engine="innodb" comment="ETechFlow ISP store tag catalog (Flagship, Drive-thru, Express, etc.)">
+        <column xsi:type="int" name="tag_id" padding="10" unsigned="true" nullable="false" identity="true" comment="PK"/>
+        <column xsi:type="varchar" name="code" length="64" nullable="false" comment="Unique short identifier"/>
+        <column xsi:type="varchar" name="label" length="128" nullable="false" comment="Display label"/>
+        <column xsi:type="varchar" name="colour" length="32" nullable="true" comment="Optional hex/Tailwind colour for badge"/>
+        <column xsi:type="int" name="sort_order" padding="10" unsigned="true" nullable="false" default="0"/>
+        <column xsi:type="smallint" name="is_active" padding="2" unsigned="true" nullable="false" default="1"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="tag_id"/>
+        </constraint>
+        <constraint xsi:type="unique" referenceId="ETECHFLOW_ISP_TAG_CODE">
+            <column name="code"/>
+        </constraint>
+    </table>
+
+    <!-- ============================================================
+         9. STORE ↔ TAG LINK
+         ============================================================ -->
+    <table name="etechflow_isp_store_tag" resource="default" engine="innodb" comment="ETechFlow ISP store-to-tag many-to-many link">
+        <column xsi:type="int" name="link_id" padding="10" unsigned="true" nullable="false" identity="true" comment="PK"/>
+        <column xsi:type="int" name="store_id" padding="10" unsigned="true" nullable="false" comment="FK"/>
+        <column xsi:type="int" name="tag_id" padding="10" unsigned="true" nullable="false" comment="FK"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="link_id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="ETECHFLOW_ISP_TAG_STORE_FK"
+                    table="etechflow_isp_store_tag" column="store_id"
+                    referenceTable="etechflow_isp_store" referenceColumn="store_id" onDelete="CASCADE"/>
+        <constraint xsi:type="foreign" referenceId="ETECHFLOW_ISP_TAG_TAG_FK"
+                    table="etechflow_isp_store_tag" column="tag_id"
+                    referenceTable="etechflow_isp_tag" referenceColumn="tag_id" onDelete="CASCADE"/>
+        <constraint xsi:type="unique" referenceId="ETECHFLOW_ISP_TAG_STORE_TAG">
+            <column name="store_id"/>
+            <column name="tag_id"/>
+        </constraint>
+    </table>
+
+    <!-- ============================================================
+         10. PICKUP WINDOWS (global templates)
+         ============================================================ -->
+    <table name="etechflow_isp_pickup_window" resource="default" engine="innodb" comment="ETechFlow ISP global pickup-window slot catalog (Morning 9-12, Afternoon 1-5, etc.)">
+        <column xsi:type="int" name="window_id" padding="10" unsigned="true" nullable="false" identity="true" comment="PK"/>
+        <column xsi:type="varchar" name="code" length="64" nullable="false" comment="Unique short identifier"/>
+        <column xsi:type="varchar" name="label" length="128" nullable="false" comment="Display label"/>
+        <column xsi:type="varchar" name="start_time" length="5" nullable="false" comment="HH:MM"/>
+        <column xsi:type="varchar" name="end_time" length="5" nullable="false" comment="HH:MM"/>
+        <column xsi:type="int" name="capacity" padding="10" unsigned="true" nullable="false" default="0" comment="Max orders per window per store per day (0 = unlimited)"/>
+        <column xsi:type="int" name="sort_order" padding="10" unsigned="true" nullable="false" default="0"/>
+        <column xsi:type="smallint" name="is_active" padding="2" unsigned="true" nullable="false" default="1"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="window_id"/>
+        </constraint>
+        <constraint xsi:type="unique" referenceId="ETECHFLOW_ISP_WINDOW_CODE">
+            <column name="code"/>
+        </constraint>
+    </table>
+
+    <!-- ============================================================
+         11. STORE PICKUP WINDOW OVERRIDES
+              When a store wants to disable a global window, change its
+              capacity, or define a store-only window.
+         ============================================================ -->
+    <table name="etechflow_isp_store_pickup_window" resource="default" engine="innodb" comment="ETechFlow ISP per-store overrides for global pickup windows">
+        <column xsi:type="int" name="override_id" padding="10" unsigned="true" nullable="false" identity="true" comment="PK"/>
+        <column xsi:type="int" name="store_id" padding="10" unsigned="true" nullable="false" comment="FK"/>
+        <column xsi:type="int" name="window_id" padding="10" unsigned="true" nullable="false" comment="FK to etechflow_isp_pickup_window"/>
+        <column xsi:type="smallint" name="is_disabled" padding="2" unsigned="true" nullable="false" default="0" comment="1 = this store does not offer this window"/>
+        <column xsi:type="int" name="capacity_override" padding="10" unsigned="true" nullable="true" comment="If set, overrides the global capacity for this store"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="override_id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="ETECHFLOW_ISP_SPW_STORE_FK"
+                    table="etechflow_isp_store_pickup_window" column="store_id"
+                    referenceTable="etechflow_isp_store" referenceColumn="store_id" onDelete="CASCADE"/>
+        <constraint xsi:type="foreign" referenceId="ETECHFLOW_ISP_SPW_WINDOW_FK"
+                    table="etechflow_isp_store_pickup_window" column="window_id"
+                    referenceTable="etechflow_isp_pickup_window" referenceColumn="window_id" onDelete="CASCADE"/>
+        <constraint xsi:type="unique" referenceId="ETECHFLOW_ISP_SPW_STORE_WINDOW">
+            <column name="store_id"/>
+            <column name="window_id"/>
+        </constraint>
+    </table>
+</schema>

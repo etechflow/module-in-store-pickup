@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
+    <!-- Phase v1.1: add a "Mark Pickup Ready" button to the admin sales-order view
+         for pickup orders. Plugin lives in adminhtml scope so it never runs on the
+         storefront. -->
+    <type name="Magento\Sales\Block\Adminhtml\Order\View">
+        <plugin name="etechflow_isp_mark_pickup_ready_button"
+                type="ETechFlow\InStorePickup\Plugin\Adminhtml\MarkReadyButtonPlugin"
+                sortOrder="100"/>
+    </type>
+</config>

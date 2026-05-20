@@ -1,0 +1,29 @@
+<?php
+
+declare(strict_types=1);
+
+namespace ETechFlow\InStorePickup\Model\ResourceModel\Holiday;
+
+use ETechFlow\InStorePickup\Model\Holiday as HolidayModel;
+use ETechFlow\InStorePickup\Model\ResourceModel\Holiday as HolidayResource;
+use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
+
+class Collection extends AbstractCollection
+{
+    /** @var string */
+    protected $_idFieldName = 'holiday_id';
+
+    /** @var string */
+    protected $_eventPrefix = 'etechflow_isp_holiday_collection';
+
+    /** @var string */
+    protected $_eventObject = 'holiday_collection';
+
+    /**
+     * @return void
+     */
+    protected function _construct(): void
+    {
+        $this->_init(HolidayModel::class, HolidayResource::class);
+    }
+}

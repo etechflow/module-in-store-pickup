@@ -1,0 +1,117 @@
+<?php
+
+declare(strict_types=1);
+
+namespace ETechFlow\InStorePickup\Controller\Adminhtml\Holiday;
+
+use ETechFlow\InStorePickup\Api\HolidayRepositoryInterface;
+use ETechFlow\InStorePickup\Model\HolidayFactory;
+use ETechFlow\InStorePickup\Model\TimeNormalizer;
+use Magento\Backend\App\Action;
+use Magento\Backend\App\Action\Context;
+use Magento\Framework\App\Action\HttpPostActionInterface;
+use Magento\Framework\Controller\Result\Redirect;
+use Psr\Log\LoggerInterface;
+
+class Save extends Action implements HttpPostActionInterface
+{
+    public const ADMIN_RESOURCE = 'ETechFlow_InStorePickup::holidays';
+
+    public function __construct(
+        Context $context,
+        private readonly HolidayRepositoryInterface $holidayRepository,
+        private readonly HolidayFactory $holidayFactory,
+        private readonly TimeNormalizer $timeNormalizer,
+        private readonly LoggerInterface $logger
+    ) {
+        parent::__construct($context);
+    }
+
+    /**
+     * @return Redirect
+     */
+    public function execute()
+    {
+        /** @var Redirect $redirect */
+        $redirect = $this->resultRedirectFactory->create();
+        $data = $this->getRequest()->getPostValue();
+
+        if (empty($data)) {
+            return $redirect->setPath('*/*/index');
+        }
+
+        $data = $this->normalisePayload($data);
+
+        try {
+            $holidayId = (int) ($data['holiday_id'] ?? 0);
+            $holiday = $holidayId > 0
+                ? $this->holidayRepository->getById($holidayId)
+                : $this->holidayFactory->create();
+
+            if (empty($data['name'])) {
+                $this->messageManager->addErrorMessage(__('Holiday name is required.'));
+                return $redirect->setPath('*/*/edit', ['holiday_id' => $holidayId]);
+            }
+            if (empty($data['holiday_date'])) {
+                $this->messageManager->addErrorMessage(__('Holiday date is required.'));
+                return $redirect->setPath('*/*/edit', ['holiday_id' => $holidayId]);
+            }
+
+            if (!$data['is_closed']) {
+                $data['reduced_open']  = $this->timeNormalizer->normalize($data['reduced_open']  ?? null);
+                $data['reduced_close'] = $this->timeNormalizer->normalize($data['reduced_close'] ?? null);
+                if ($data['reduced_open'] === null || $data['reduced_close'] === null) {
+                    $this->messageManager->addErrorMessage(
+                        __('When "Closed All Day" is off, enter both Reduced Open and Reduced Close (e.g. "10:00" and "14:00" — "10am" and "2 PM" also work).')
+                    );
+                    return $redirect->setPath('*/*/edit', ['holiday_id' => $holidayId]);
+                }
+                if ($data['reduced_open'] >= $data['reduced_close']) {
+                    $this->messageManager->addErrorMessage(__('Reduced-open must be earlier than reduced-close.'));
+                    return $redirect->setPath('*/*/edit', ['holiday_id' => $holidayId]);
+                }
+            } else {
+                $data['reduced_open']  = null;
+                $data['reduced_close'] = null;
+            }
+
+            $holiday->setData(array_merge($holiday->getData(), $data));
+            $this->holidayRepository->save($holiday);
+
+            $this->messageManager->addSuccessMessage(__('Holiday saved: %1', $holiday->getName()));
+
+            if ($this->getRequest()->getParam('back')) {
+                return $redirect->setPath('*/*/edit', ['holiday_id' => $holiday->getHolidayId()]);
+            }
+            return $redirect->setPath('*/*/index');
+        } catch (\Throwable $e) {
+            $this->logger->error('ETechFlow_InStorePickup: holiday save failed.', ['exception' => $e->getMessage()]);
+            $this->messageManager->addErrorMessage(__('Could not save holiday: %1', $e->getMessage()));
+            return $redirect->setPath('*/*/edit', ['holiday_id' => (int) ($data['holiday_id'] ?? 0)]);
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    private function normalisePayload(array $data): array
+    {
+        foreach (['name', 'holiday_date', 'reduced_open', 'reduced_close', 'country_code'] as $f) {
+            if (isset($data[$f]) && is_string($data[$f])) {
+                $data[$f] = trim($data[$f]);
+            }
+        }
+        if (!empty($data['country_code'])) {
+            $data['country_code'] = strtoupper($data['country_code']);
+        }
+        $data['is_recurring'] = !empty($data['is_recurring']) ? 1 : 0;
+        $data['is_closed']    = !empty($data['is_closed']) ? 1 : 0;
+        return $data;
+    }
+
+    private function isHhMm(string $value): bool
+    {
+        return (bool) preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d$/', $value);
+    }
+}

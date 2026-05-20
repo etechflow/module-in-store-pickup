@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <!-- Magento Shipping carrier registration (standard pattern). -->
+        <carriers>
+            <etechflow_isp>
+                <active>1</active>
+                <model>ETechFlow\InStorePickup\Model\Carrier\InStorePickup</model>
+                <title>In-Store Pickup</title>
+                <name>Pick up in store</name>
+                <type>O</type>
+                <sallowspecific>0</sallowspecific>
+                <sort_order>5</sort_order>
+                <showmethod>1</showmethod>
+                <specificerrmsg>Pick up in store is not available right now. Please pick a different shipping method or try again later.</specificerrmsg>
+            </etechflow_isp>
+        </carriers>
+
+        <etechflow_instorepickup>
+            <license>
+                <license_key></license_key>
+                <production_environment>1</production_environment>
+            </license>
+            <general>
+                <enabled>1</enabled>
+                <pickup_method_title>Pick up in store</pickup_method_title>
+                <pickup_method_description>Collect your order from one of our shops</pickup_method_description>
+                <require_pickup_window>0</require_pickup_window>
+                <autofill_shipping_address>1</autofill_shipping_address>
+                <pickup_code_length>6</pickup_code_length>
+            </general>
+            <integrations>
+                <use_nde_eligibility>1</use_nde_eligibility>
+                <use_dd_time_intervals>0</use_dd_time_intervals>
+                <use_bed_eta>1</use_bed_eta>
+            </integrations>
+            <notifications>
+                <send_pickup_ready>1</send_pickup_ready>
+                <send_staff_alert>1</send_staff_alert>
+            </notifications>
+        </etechflow_instorepickup>
+    </default>
+</config>

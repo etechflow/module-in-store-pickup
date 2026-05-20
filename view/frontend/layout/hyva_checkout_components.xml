@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <!--
+            Hyvä Checkout reads this layout file to discover and mount
+            additional checkout components. The container ID
+            `checkout.shipping.before` renders BEFORE the shipping-method
+            list — placing the store picker first lets the customer
+            choose a pickup location, which then auto-fills their
+            shipping address (Phase 7 plugin).
+
+            The Magewire component class extends \Magewirephp\Magewire\Component.
+            That class is only autoloaded by Hyvä Checkout — stores without
+            Hyvä Checkout never reach this layout handle, so the class file
+            sits inert on disk.
+
+            On stores without Hyvä Checkout, the customer instead picks a
+            store via the standard Magento shipping-method radio list
+            (one method per store, courtesy of our Carrier).
+        -->
+        <referenceContainer name="checkout.shipping.before">
+            <block name="etechflow.isp.store.picker.magewire"
+                   template="ETechFlow_InStorePickup::magewire/checkout/store-picker.phtml">
+                <arguments>
+                    <argument name="magewire" xsi:type="object">
+                        ETechFlow\InStorePickup\Magewire\Checkout\StorePicker
+                    </argument>
+                </arguments>
+            </block>
+        </referenceContainer>
+    </body>
+</page>

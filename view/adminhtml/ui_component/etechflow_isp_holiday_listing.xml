@@ -1,0 +1,122 @@
+<?xml version="1.0"?>
+<listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+
+    <argument name="data" xsi:type="array">
+        <item name="js_config" xsi:type="array">
+            <item name="provider" xsi:type="string">etechflow_isp_holiday_listing.etechflow_isp_holiday_listing_data_source</item>
+        </item>
+    </argument>
+
+    <settings>
+        <buttons>
+            <button name="add">
+                <url path="*/*/new"/>
+                <class>primary</class>
+                <label translate="true">Add New Holiday</label>
+            </button>
+        </buttons>
+        <spinner>etechflow_isp_holiday_columns</spinner>
+        <deps>
+            <dep>etechflow_isp_holiday_listing.etechflow_isp_holiday_listing_data_source</dep>
+        </deps>
+    </settings>
+
+    <dataSource name="etechflow_isp_holiday_listing_data_source" component="Magento_Ui/js/grid/provider">
+        <settings>
+            <storageConfig>
+                <param name="indexField" xsi:type="string">holiday_id</param>
+            </storageConfig>
+            <updateUrl path="mui/index/render"/>
+        </settings>
+        <aclResource>ETechFlow_InStorePickup::holidays</aclResource>
+        <dataProvider class="ETechFlow\InStorePickup\Ui\Component\Listing\GenericDataProvider"
+                      name="etechflow_isp_holiday_listing_data_source">
+            <settings>
+                <requestFieldName>holiday_id</requestFieldName>
+                <primaryFieldName>holiday_id</primaryFieldName>
+            </settings>
+        </dataProvider>
+    </dataSource>
+
+    <listingToolbar name="listing_top">
+        <settings>
+            <sticky>true</sticky>
+        </settings>
+        <bookmark name="bookmarks"/>
+        <columnsControls name="columns_controls"/>
+        <filterSearch name="fulltext"/>
+        <filters name="listing_filters"/>
+        <massaction name="listing_massaction">
+            <action name="delete">
+                <settings>
+                    <confirm>
+                        <message translate="true">Delete the selected holidays? Per-store opt-outs are removed automatically.</message>
+                        <title translate="true">Delete holidays</title>
+                    </confirm>
+                    <url path="*/*/massDelete"/>
+                    <type>delete</type>
+                    <label translate="true">Delete</label>
+                </settings>
+            </action>
+        </massaction>
+        <paging name="listing_paging"/>
+    </listingToolbar>
+
+    <columns name="etechflow_isp_holiday_columns">
+        <selectionsColumn name="ids">
+            <settings>
+                <indexField>holiday_id</indexField>
+            </settings>
+        </selectionsColumn>
+        <column name="holiday_id">
+            <settings>
+                <filter>textRange</filter>
+                <label translate="true">ID</label>
+            </settings>
+        </column>
+        <column name="name">
+            <settings>
+                <filter>text</filter>
+                <label translate="true">Name</label>
+            </settings>
+        </column>
+        <column name="holiday_date" component="Magento_Ui/js/grid/columns/date" class="Magento\Ui\Component\Listing\Columns\Date">
+            <settings>
+                <filter>dateRange</filter>
+                <dataType>date</dataType>
+                <label translate="true">Date</label>
+                <sorting>asc</sorting>
+            </settings>
+        </column>
+        <column name="is_recurring" component="Magento_Ui/js/grid/columns/select">
+            <settings>
+                <options class="Magento\Config\Model\Config\Source\Yesno"/>
+                <dataType>select</dataType>
+                <filter>select</filter>
+                <label translate="true">Annual</label>
+            </settings>
+        </column>
+        <column name="is_closed" component="Magento_Ui/js/grid/columns/select">
+            <settings>
+                <options class="Magento\Config\Model\Config\Source\Yesno"/>
+                <dataType>select</dataType>
+                <filter>select</filter>
+                <label translate="true">Closed All Day</label>
+            </settings>
+        </column>
+        <column name="country_code">
+            <settings>
+                <filter>text</filter>
+                <label translate="true">Country</label>
+            </settings>
+        </column>
+        <actionsColumn name="actions" class="ETechFlow\InStorePickup\Ui\Component\Listing\Column\HolidayActions">
+            <settings>
+                <indexField>holiday_id</indexField>
+                <resizeEnabled>false</resizeEnabled>
+                <resizeDefaultWidth>120</resizeDefaultWidth>
+            </settings>
+        </actionsColumn>
+    </columns>
+</listing>

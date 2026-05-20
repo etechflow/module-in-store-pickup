@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <!-- Top-level eTechFlow menu (shared across all eTechFlow modules; only added once
+             — Magento merges menu entries from every module with the same id). -->
+        <add id="ETechFlow_InStorePickup::isp_root"
+             title="In-Store Pickup"
+             module="ETechFlow_InStorePickup"
+             sortOrder="105"
+             parent="Magento_Backend::stores_settings"
+             resource="ETechFlow_InStorePickup::menu"/>
+
+        <add id="ETechFlow_InStorePickup::stores"
+             title="Stores"
+             module="ETechFlow_InStorePickup"
+             sortOrder="10"
+             parent="ETechFlow_InStorePickup::isp_root"
+             action="etechflow_isp/store/index"
+             resource="ETechFlow_InStorePickup::stores"/>
+
+        <add id="ETechFlow_InStorePickup::holidays"
+             title="Holidays"
+             module="ETechFlow_InStorePickup"
+             sortOrder="20"
+             parent="ETechFlow_InStorePickup::isp_root"
+             action="etechflow_isp/holiday/index"
+             resource="ETechFlow_InStorePickup::holidays"/>
+
+        <add id="ETechFlow_InStorePickup::tags"
+             title="Store Tags"
+             module="ETechFlow_InStorePickup"
+             sortOrder="30"
+             parent="ETechFlow_InStorePickup::isp_root"
+             action="etechflow_isp/tag/index"
+             resource="ETechFlow_InStorePickup::tags"/>
+
+        <add id="ETechFlow_InStorePickup::amenities"
+             title="Amenities"
+             module="ETechFlow_InStorePickup"
+             sortOrder="40"
+             parent="ETechFlow_InStorePickup::isp_root"
+             action="etechflow_isp/amenity/index"
+             resource="ETechFlow_InStorePickup::amenities"/>
+
+        <add id="ETechFlow_InStorePickup::pickup_windows"
+             title="Pickup Windows"
+             module="ETechFlow_InStorePickup"
+             sortOrder="50"
+             parent="ETechFlow_InStorePickup::isp_root"
+             action="etechflow_isp/pickupwindow/index"
+             resource="ETechFlow_InStorePickup::pickup_windows"/>
+    </menu>
+</config>

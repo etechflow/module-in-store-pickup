@@ -1,0 +1,17 @@
+{
+    "country_code": "US",
+    "source": "https://www.opm.gov/policy-data-oversight/pay-leave/federal-holidays/",
+    "holidays": [
+        {"name": "New Year's Day",                       "date": "2026-01-01", "is_recurring": 1},
+        {"name": "Martin Luther King Jr. Day",           "date": "2026-01-19", "is_recurring": 0},
+        {"name": "Presidents' Day",                      "date": "2026-02-16", "is_recurring": 0},
+        {"name": "Memorial Day",                         "date": "2026-05-25", "is_recurring": 0},
+        {"name": "Juneteenth",                           "date": "2026-06-19", "is_recurring": 1},
+        {"name": "Independence Day",                     "date": "2026-07-03", "is_recurring": 0},
+        {"name": "Labor Day",                            "date": "2026-09-07", "is_recurring": 0},
+        {"name": "Columbus Day",                         "date": "2026-10-12", "is_recurring": 0},
+        {"name": "Veterans Day",                         "date": "2026-11-11", "is_recurring": 1},
+        {"name": "Thanksgiving Day",                     "date": "2026-11-26", "is_recurring": 0},
+        {"name": "Christmas Day",                        "date": "2026-12-25", "is_recurring": 1}
+    ]
+}

@@ -1,0 +1,58 @@
+<!--@subject New pickup order #{{var increment_id}} — {{var pickup_store_name}} @-->
+<!--@vars {
+"var increment_id":"Order Increment ID",
+"var pickup_store_name":"Store Name",
+"var pickup_store_phone":"Store Phone",
+"var customer_name":"Customer Name",
+"var customer_email":"Customer Email",
+"var grand_total":"Order Total"
+} @-->
+
+{{template config_path="design/email/header_template"}}
+
+<table border="0" cellspacing="0" cellpadding="0" style="background:#f8fafc; padding:24px 0;">
+    <tr>
+        <td align="center">
+            <table border="0" cellspacing="0" cellpadding="0" width="560" style="background:#fff; border-radius:8px; border:1px solid #e2e8f0; padding:32px;">
+                <tr>
+                    <td>
+                        <h1 style="margin:0 0 8px 0; font-size:22px; color:#0f172a;">New pickup order</h1>
+                        <p style="margin:0 0 24px 0; font-size:15px; color:#475569;">
+                            Order <strong>#{{var increment_id}}</strong> is waiting for collection at {{var pickup_store_name}}.
+                        </p>
+
+                        <table border="0" cellspacing="0" cellpadding="0" width="100%" style="margin-bottom:24px;">
+                            <tr>
+                                <td style="padding:8px 0; border-bottom:1px solid #e2e8f0; font-weight:600; color:#0f172a;">Order #</td>
+                                <td style="padding:8px 0; border-bottom:1px solid #e2e8f0; color:#475569; text-align:right;">#{{var increment_id}}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:8px 0; border-bottom:1px solid #e2e8f0; font-weight:600; color:#0f172a;">Customer</td>
+                                <td style="padding:8px 0; border-bottom:1px solid #e2e8f0; color:#475569; text-align:right;">{{var customer_name|escape}}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:8px 0; border-bottom:1px solid #e2e8f0; font-weight:600; color:#0f172a;">Email</td>
+                                <td style="padding:8px 0; border-bottom:1px solid #e2e8f0; color:#475569; text-align:right;">{{var customer_email|escape}}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:8px 0; font-weight:600; color:#0f172a;">Total</td>
+                                <td style="padding:8px 0; color:#475569; text-align:right;">{{var grand_total|currency}}</td>
+                            </tr>
+                        </table>
+
+                        <div style="background:#f0f9ff; border-left:4px solid #0ea5e9; padding:14px 18px; border-radius:4px; margin-bottom:16px;">
+                            <strong style="color:#0c4a6e;">Action required:</strong>
+                            <span style="color:#0c4a6e;">Pick + pack this order, then mark it ready in the admin so the customer is notified.</span>
+                        </div>
+
+                        <p style="margin:0; font-size:13px; color:#94a3b8;">
+                            Sent automatically by ETechFlow In-Store Pickup.
+                        </p>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
+{{template config_path="design/email/footer_template"}}

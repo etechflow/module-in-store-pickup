@@ -1,0 +1,119 @@
+<?xml version="1.0"?>
+<listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+
+    <argument name="data" xsi:type="array">
+        <item name="js_config" xsi:type="array">
+            <item name="provider" xsi:type="string">etechflow_isp_amenity_listing.etechflow_isp_amenity_listing_data_source</item>
+        </item>
+    </argument>
+
+    <settings>
+        <buttons>
+            <button name="add">
+                <url path="*/*/new"/>
+                <class>primary</class>
+                <label translate="true">Add New Amenity</label>
+            </button>
+        </buttons>
+        <spinner>etechflow_isp_amenity_columns</spinner>
+        <deps>
+            <dep>etechflow_isp_amenity_listing.etechflow_isp_amenity_listing_data_source</dep>
+        </deps>
+    </settings>
+
+    <dataSource name="etechflow_isp_amenity_listing_data_source" component="Magento_Ui/js/grid/provider">
+        <settings>
+            <storageConfig>
+                <param name="indexField" xsi:type="string">amenity_id</param>
+            </storageConfig>
+            <updateUrl path="mui/index/render"/>
+        </settings>
+        <aclResource>ETechFlow_InStorePickup::amenities</aclResource>
+        <dataProvider class="ETechFlow\InStorePickup\Ui\Component\Listing\GenericDataProvider"
+                      name="etechflow_isp_amenity_listing_data_source">
+            <settings>
+                <requestFieldName>amenity_id</requestFieldName>
+                <primaryFieldName>amenity_id</primaryFieldName>
+            </settings>
+        </dataProvider>
+    </dataSource>
+
+    <listingToolbar name="listing_top">
+        <settings>
+            <sticky>true</sticky>
+        </settings>
+        <bookmark name="bookmarks"/>
+        <columnsControls name="columns_controls"/>
+        <filterSearch name="fulltext"/>
+        <filters name="listing_filters"/>
+        <massaction name="listing_massaction">
+            <action name="delete">
+                <settings>
+                    <confirm>
+                        <message translate="true">Delete the selected amenities? Store-amenity assignments are removed automatically.</message>
+                        <title translate="true">Delete amenities</title>
+                    </confirm>
+                    <url path="*/*/massDelete"/>
+                    <type>delete</type>
+                    <label translate="true">Delete</label>
+                </settings>
+            </action>
+        </massaction>
+        <paging name="listing_paging"/>
+    </listingToolbar>
+
+    <columns name="etechflow_isp_amenity_columns">
+        <selectionsColumn name="ids">
+            <settings>
+                <indexField>amenity_id</indexField>
+            </settings>
+        </selectionsColumn>
+        <column name="amenity_id">
+            <settings>
+                <filter>textRange</filter>
+                <label translate="true">ID</label>
+                <sorting>asc</sorting>
+            </settings>
+        </column>
+        <column name="code">
+            <settings>
+                <filter>text</filter>
+                <label translate="true">Code</label>
+            </settings>
+        </column>
+        <column name="label">
+            <settings>
+                <filter>text</filter>
+                <label translate="true">Label</label>
+            </settings>
+        </column>
+        <column name="icon">
+            <settings>
+                <filter>text</filter>
+                <label translate="true">Icon</label>
+            </settings>
+        </column>
+        <column name="sort_order">
+            <settings>
+                <filter>textRange</filter>
+                <label translate="true">Sort Order</label>
+            </settings>
+        </column>
+        <column name="is_active" component="Magento_Ui/js/grid/columns/select">
+            <settings>
+                <options class="Magento\Config\Model\Config\Source\Yesno"/>
+                <dataType>select</dataType>
+                <filter>select</filter>
+                <label translate="true">Active</label>
+            </settings>
+        </column>
+        <actionsColumn name="actions" class="ETechFlow\InStorePickup\Ui\Component\Listing\Column\AmenityActions">
+            <settings>
+                <indexField>amenity_id</indexField>
+                <resizeEnabled>false</resizeEnabled>
+                <resizeDefaultWidth>120</resizeDefaultWidth>
+            </settings>
+        </actionsColumn>
+    </columns>
+</listing>

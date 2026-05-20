@@ -1,0 +1,14 @@
+{
+    "country_code": "GB",
+    "source": "https://www.gov.uk/bank-holidays (England & Wales)",
+    "holidays": [
+        {"name": "New Year's Day",          "date": "2026-01-01", "is_recurring": 1},
+        {"name": "Good Friday",             "date": "2026-04-03", "is_recurring": 0},
+        {"name": "Easter Monday",           "date": "2026-04-06", "is_recurring": 0},
+        {"name": "Early May Bank Holiday",  "date": "2026-05-04", "is_recurring": 0},
+        {"name": "Spring Bank Holiday",     "date": "2026-05-25", "is_recurring": 0},
+        {"name": "Summer Bank Holiday",     "date": "2026-08-31", "is_recurring": 0},
+        {"name": "Christmas Day",           "date": "2026-12-25", "is_recurring": 1},
+        {"name": "Boxing Day (substitute)", "date": "2026-12-28", "is_recurring": 0}
+    ]
+}

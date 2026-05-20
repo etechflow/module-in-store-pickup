@@ -1,0 +1,161 @@
+<?xml version="1.0"?>
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+
+    <argument name="data" xsi:type="array">
+        <item name="js_config" xsi:type="array">
+            <item name="provider" xsi:type="string">etechflow_isp_holiday_form.etechflow_isp_holiday_form_data_source</item>
+        </item>
+        <item name="label" xsi:type="string" translate="true">Holiday</item>
+        <item name="template" xsi:type="string">templates/form/collapsible</item>
+    </argument>
+
+    <settings>
+        <buttons>
+            <button name="back" class="ETechFlow\InStorePickup\Block\Adminhtml\Holiday\BackButton"/>
+            <button name="delete" class="ETechFlow\InStorePickup\Block\Adminhtml\Holiday\DeleteButton"/>
+            <button name="save" class="ETechFlow\InStorePickup\Block\Adminhtml\Holiday\SaveButton"/>
+        </buttons>
+        <namespace>etechflow_isp_holiday_form</namespace>
+        <dataScope>data</dataScope>
+        <deps>
+            <dep>etechflow_isp_holiday_form.etechflow_isp_holiday_form_data_source</dep>
+        </deps>
+    </settings>
+
+    <dataSource name="etechflow_isp_holiday_form_data_source">
+        <argument name="data" xsi:type="array">
+            <item name="js_config" xsi:type="array">
+                <item name="component" xsi:type="string">Magento_Ui/js/form/provider</item>
+            </item>
+        </argument>
+        <settings>
+            <submitUrl path="*/*/save"/>
+        </settings>
+        <dataProvider class="ETechFlow\InStorePickup\Ui\Component\Form\HolidayDataProvider"
+                      name="etechflow_isp_holiday_form_data_source">
+            <settings>
+                <requestFieldName>holiday_id</requestFieldName>
+                <primaryFieldName>holiday_id</primaryFieldName>
+            </settings>
+        </dataProvider>
+    </dataSource>
+
+    <fieldset name="general">
+        <settings>
+            <label translate="true">Holiday Details</label>
+        </settings>
+        <htmlContent name="holiday_tz_note">
+            <block name="holiday_tz_note_block"
+                   class="ETechFlow\InStorePickup\Block\Adminhtml\Form\TimezoneNote"/>
+        </htmlContent>
+
+        <field name="holiday_id" formElement="input">
+            <settings>
+                <dataType>text</dataType>
+                <visible>false</visible>
+                <dataScope>holiday_id</dataScope>
+            </settings>
+        </field>
+        <field name="name" formElement="input">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Name</label>
+                <dataScope>name</dataScope>
+                <notice translate="true">e.g. "Christmas Day", "Bank Holiday Monday".</notice>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                </validation>
+            </settings>
+        </field>
+        <field name="holiday_date" formElement="date">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Date</label>
+                <dataScope>holiday_date</dataScope>
+                <notice translate="true">If "Annual" is set, the month-day part is what recurs each year.</notice>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                </validation>
+            </settings>
+            <formElements>
+                <date>
+                    <settings>
+                        <options>
+                            <option name="dateFormat" xsi:type="string">y-MM-dd</option>
+                            <option name="storeLocale" xsi:type="string">en_US</option>
+                        </options>
+                    </settings>
+                </date>
+            </formElements>
+        </field>
+        <field name="is_recurring" formElement="checkbox">
+            <settings>
+                <dataType>boolean</dataType>
+                <label translate="true">Annual</label>
+                <dataScope>is_recurring</dataScope>
+                <prefer>toggle</prefer>
+                <valueMap>
+                    <map name="false" xsi:type="number">0</map>
+                    <map name="true" xsi:type="number">1</map>
+                </valueMap>
+                <notice translate="true">If on, repeats every year on the same month-day. If off, applies only to that exact date.</notice>
+            </settings>
+        </field>
+        <field name="is_closed" formElement="checkbox">
+            <settings>
+                <dataType>boolean</dataType>
+                <label translate="true">Closed All Day</label>
+                <dataScope>is_closed</dataScope>
+                <prefer>toggle</prefer>
+                <valueMap>
+                    <map name="false" xsi:type="number">0</map>
+                    <map name="true" xsi:type="number">1</map>
+                </valueMap>
+                <notice translate="true">If on, all stores are closed. Turn off to set reduced opening hours instead.</notice>
+            </settings>
+        </field>
+        <field name="reduced_open" formElement="input">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Reduced Open</label>
+                <dataScope>reduced_open</dataScope>
+                <notice translate="true">Required when "Closed All Day" is off. Accepts "10:00", "10am", "10", etc.</notice>
+                <imports>
+                    <link name="visible">${ $.provider }:${ $.parentScope }.is_closed</link>
+                </imports>
+                <importsConfig>
+                    <param name="visible" xsi:type="array">
+                        <item name="0" xsi:type="boolean">true</item>
+                        <item name="1" xsi:type="boolean">false</item>
+                    </param>
+                </importsConfig>
+            </settings>
+        </field>
+        <field name="reduced_close" formElement="input">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Reduced Close</label>
+                <dataScope>reduced_close</dataScope>
+                <notice translate="true">Required when "Closed All Day" is off. Accepts "14:00", "2pm", "14", etc.</notice>
+                <imports>
+                    <link name="visible">${ $.provider }:${ $.parentScope }.is_closed</link>
+                </imports>
+                <importsConfig>
+                    <param name="visible" xsi:type="array">
+                        <item name="0" xsi:type="boolean">true</item>
+                        <item name="1" xsi:type="boolean">false</item>
+                    </param>
+                </importsConfig>
+            </settings>
+        </field>
+        <field name="country_code" formElement="input">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Country</label>
+                <dataScope>country_code</dataScope>
+                <notice translate="true">Optional 2-letter ISO code (GB / IE / US / …). Leave blank for custom (non-public) holidays.</notice>
+            </settings>
+        </field>
+    </fieldset>
+</form>

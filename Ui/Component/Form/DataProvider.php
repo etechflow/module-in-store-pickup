@@ -63,7 +63,7 @@ class DataProvider extends AbstractDataProvider
         foreach ($items as $store) {
             /** @var \ETechFlow\InStorePickup\Model\Store $store */
             $storeId = (int) $store->getStoreId();
-            $row = $store->getData();
+            $row = $this->castBooleans($store->getData());
             $row['assigned_amenity_ids'] = $this->assignmentManager->getAssigned(
                 'etechflow_isp_store_amenity',
                 'amenity_id',
@@ -76,7 +76,9 @@ class DataProvider extends AbstractDataProvider
             );
             $hours = $this->hoursManager->getRows($storeId);
             foreach ($hours as $weekday => $hr) {
-                $row['hours_' . $weekday . '_is_closed']  = $hr['is_closed'];
+                // HoursManager.getRows() already casts is_closed to int — but be
+                // defensive here in case that contract ever drifts.
+                $row['hours_' . $weekday . '_is_closed']  = (int) $hr['is_closed'];
                 $row['hours_' . $weekday . '_open_time']  = $hr['open_time'];
                 $row['hours_' . $weekday . '_close_time'] = $hr['close_time'];
             }
@@ -90,10 +92,31 @@ class DataProvider extends AbstractDataProvider
         if (!empty($persisted)) {
             $store = $this->collection->getNewEmptyItem();
             $store->setData($persisted);
-            $this->loadedData[$store->getStoreId() ?? 0] = $store->getData();
+            $this->loadedData[$store->getStoreId() ?? 0] = $this->castBooleans($store->getData());
             $this->dataPersistor->clear('etechflow_isp_store');
         }
 
         return $this->loadedData ?? [];
+    }
+
+    /**
+     * v1.1.7 fix: MySQL returns smallint columns as PHP strings ("1", "0").
+     * The form's `<valueMap>` entries declare integers via `xsi:type="number"`.
+     * Magento's `Magento_Ui/js/form/element/single-checkbox` compares with
+     * strict equality — `"1" === 1` is false — so the toggle renders OFF
+     * even when the row's `is_active = 1`. Cast all known boolean fields
+     * here so the comparison works → display correct → click writes 1/0.
+     *
+     * @param array<string, mixed> $row
+     * @return array<string, mixed>
+     */
+    private function castBooleans(array $row): array
+    {
+        foreach (['is_active'] as $field) {
+            if (array_key_exists($field, $row) && $row[$field] !== null) {
+                $row[$field] = (int) $row[$field];
+            }
+        }
+        return $row;
     }
 }

@@ -41,17 +41,33 @@ class TagDataProvider extends AbstractDataProvider
         $items = $this->collection->getItems();
         foreach ($items as $tag) {
             /** @var \ETechFlow\InStorePickup\Model\Tag $tag */
-            $this->loadedData[$tag->getTagId()] = $tag->getData();
+            $this->loadedData[$tag->getTagId()] = $this->castBooleans($tag->getData());
         }
 
         $persisted = $this->dataPersistor->get('etechflow_isp_tag');
         if (!empty($persisted)) {
             $tag = $this->collection->getNewEmptyItem();
             $tag->setData($persisted);
-            $this->loadedData[$tag->getTagId() ?? 0] = $tag->getData();
+            $this->loadedData[$tag->getTagId() ?? 0] = $this->castBooleans($tag->getData());
             $this->dataPersistor->clear('etechflow_isp_tag');
         }
 
         return $this->loadedData ?? [];
+    }
+
+    /**
+     * v1.1.7 fix — see AmenityDataProvider for full explanation.
+     *
+     * @param array<string, mixed> $row
+     * @return array<string, mixed>
+     */
+    private function castBooleans(array $row): array
+    {
+        foreach (['is_active'] as $field) {
+            if (array_key_exists($field, $row) && $row[$field] !== null) {
+                $row[$field] = (int) $row[$field];
+            }
+        }
+        return $row;
     }
 }

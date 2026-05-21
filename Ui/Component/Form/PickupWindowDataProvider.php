@@ -38,17 +38,33 @@ class PickupWindowDataProvider extends AbstractDataProvider
         $items = $this->collection->getItems();
         foreach ($items as $window) {
             /** @var \ETechFlow\InStorePickup\Model\PickupWindow $window */
-            $this->loadedData[$window->getWindowId()] = $window->getData();
+            $this->loadedData[$window->getWindowId()] = $this->castBooleans($window->getData());
         }
 
         $persisted = $this->dataPersistor->get('etechflow_isp_pickup_window');
         if (!empty($persisted)) {
             $window = $this->collection->getNewEmptyItem();
             $window->setData($persisted);
-            $this->loadedData[$window->getWindowId() ?? 0] = $window->getData();
+            $this->loadedData[$window->getWindowId() ?? 0] = $this->castBooleans($window->getData());
             $this->dataPersistor->clear('etechflow_isp_pickup_window');
         }
 
         return $this->loadedData ?? [];
+    }
+
+    /**
+     * v1.1.7 fix — see AmenityDataProvider for full explanation.
+     *
+     * @param array<string, mixed> $row
+     * @return array<string, mixed>
+     */
+    private function castBooleans(array $row): array
+    {
+        foreach (['is_active'] as $field) {
+            if (array_key_exists($field, $row) && $row[$field] !== null) {
+                $row[$field] = (int) $row[$field];
+            }
+        }
+        return $row;
     }
 }

@@ -2,7 +2,7 @@
     "name": "etechflow/module-in-store-pickup",
     "description": "Click & Collect / in-store pickup for Magento 2. Multi-store admin (stores, holidays, tags, amenities, pickup windows). Hyvä Checkout Magewire-native. Auto-fills shipping address from picked store (kills the wrong-tax bug). Standalone — works without any other ETechFlow module — and integrates richer when paired with NDE / DD / BED.",
     "type": "magento2-module",
-    "version": "1.1.8",
+    "version": "1.1.9",
     "license": "proprietary",
     "authors": [
         {

@@ -649,6 +649,7 @@
                 <field name="is_closed" formElement="select">
                     <settings>
                         <dataType>number</dataType>
+                        <label translate="true">Closed</label>
                         <dataScope>is_closed</dataScope>
                     </settings>
                     <formElements>

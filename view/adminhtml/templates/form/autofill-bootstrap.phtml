@@ -1,0 +1,21 @@
+<?php
+/**
+ * @var \ETechFlow\InStorePickup\Block\Adminhtml\Form\AutofillBootstrap $block
+ * @var \Magento\Framework\Escaper $escaper
+ *
+ * Embedded inline so the JS gets the dynamic config blob without an
+ * extra round-trip. The actual logic is in view/adminhtml/web/js/autofill.js,
+ * loaded immediately after.
+ */
+$jsUrl = $block->getViewFileUrl('ETechFlow_InStorePickup::js/autofill.js');
+?>
+<script>
+window.etechflowIspAutofillConfig = {
+    hasGetAddressKey: <?= $block->hasGetAddressKey() ? 'true' : 'false'; ?>,
+    defaultCountry: '<?= $escaper->escapeJs($block->getDefaultCountry()); ?>',
+    postcodeLookupUrl: '<?= $escaper->escapeJs($block->getPostcodeLookupUrl()); ?>',
+    msiSourceCopyUrl: '<?= $escaper->escapeJs($block->getMsiSourceCopyUrl()); ?>',
+    formKey: '<?= $escaper->escapeJs($block->getFormKey()); ?>'
+};
+</script>
+<script src="<?= $escaper->escapeUrl($jsUrl); ?>" defer></script>

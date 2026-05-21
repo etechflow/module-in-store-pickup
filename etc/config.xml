@@ -39,6 +39,9 @@
                 <send_pickup_ready>1</send_pickup_ready>
                 <send_staff_alert>1</send_staff_alert>
             </notifications>
+            <admin_autofill>
+                <default_country>GB</default_country>
+            </admin_autofill>
         </etechflow_instorepickup>
     </default>
 </config>

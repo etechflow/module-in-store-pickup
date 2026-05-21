@@ -49,6 +49,17 @@
             <collapsible>false</collapsible>
         </settings>
 
+        <!--
+            v1.1 admin-autofill bootstrap. Injects a one-time <script> tag
+            into the form so the autofill.js module can attach buttons to
+            the postcode + MSI source fields, and apply the default country
+            on new-store creation. Rendered once per form load.
+        -->
+        <htmlContent name="autofill_bootstrap">
+            <block name="etechflow_isp_autofill_bootstrap_block"
+                   class="ETechFlow\InStorePickup\Block\Adminhtml\Form\AutofillBootstrap"/>
+        </htmlContent>
+
         <field name="store_id" formElement="input">
             <settings>
                 <dataType>text</dataType>

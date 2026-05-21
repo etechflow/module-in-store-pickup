@@ -29,6 +29,10 @@ class LicenseValidator
     /** Shared config path — same value across all eTechFlow modules. */
     public const XML_PATH_BUNDLE_LICENSE_KEY = 'etechflow_bundle/license/license_key';
 
+    /** Admin autofill (v1.1). */
+    public const XML_PATH_GETADDRESS_API_KEY = 'etechflow_instorepickup/admin_autofill/getaddress_api_key';
+    public const XML_PATH_DEFAULT_COUNTRY    = 'etechflow_instorepickup/admin_autofill/default_country';
+
     private const MODULE_ID = 'in-store-pickup';
 
     /** Shared bundle identifier — must match across all eTechFlow modules. */

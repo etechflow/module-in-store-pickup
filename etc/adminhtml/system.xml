@@ -205,6 +205,45 @@
                 </field>
             </group>
 
+            <group id="admin_autofill"
+                   translate="label"
+                   type="text"
+                   sortOrder="25"
+                   showInDefault="1"
+                   showInWebsite="0"
+                   showInStore="0">
+                <label>Admin Form Autofill</label>
+                <comment><![CDATA[
+                    Speed up store-creation by autofilling address fields. Two mechanisms:<br/>
+                    <strong>1. UK postcode lookup</strong> — Type a UK postcode, pick from a list of real addresses at that postcode.<br/>
+                    <strong>2. Copy from MSI Source</strong> — Pre-fill name + address from a configured Magento Inventory source.
+                ]]></comment>
+                <field id="getaddress_api_key"
+                       translate="label comment tooltip"
+                       type="obscure"
+                       sortOrder="10"
+                       showInDefault="1"
+                       showInWebsite="0"
+                       showInStore="0">
+                    <label>getAddress.io API Key</label>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                    <comment><![CDATA[
+                        Free tier: 1,000 lookups/month. Sign up at <a href="https://getaddress.io" target="_blank" rel="noopener">getaddress.io</a>.
+                        Without a key, the postcode lookup feature is disabled and the field just stays plain text.
+                    ]]></comment>
+                </field>
+                <field id="default_country"
+                       translate="label comment"
+                       type="text"
+                       sortOrder="20"
+                       showInDefault="1"
+                       showInWebsite="0"
+                       showInStore="0">
+                    <label>Default Country (ISO 2-letter code)</label>
+                    <comment>Pre-fills the Country field on new pickup-store forms. Default <code>GB</code>.</comment>
+                </field>
+            </group>
+
             <group id="notifications"
                    translate="label"
                    type="text"

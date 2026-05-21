@@ -4,6 +4,28 @@ All notable changes to this module. Adheres to [Semantic Versioning](https://sem
 
 ---
 
+## [1.1.12] — 2026-05-22 — Exception Day date picker fallback to typed text
+
+### Fixed
+
+- **Exception Day date field unusable on Hyva admin.** The Exception Days dynamicRows table used Magento's standard `formElement="date"` widget for the Date column. Works in standalone fieldsets (e.g. the Holiday form's date field), but on the Hyva Commerce admin theme the picker failed to initialize INSIDE the dynamicRows container — clicking the input or the calendar icon did nothing, no widget rendered, no JS error in console. Admins literally could not add an exception day. Tried `dataType=text` → `dataType=date`, adding `storeLocale` option, cache flush + static-content:deploy — none of it landed.
+
+  **Fix:** swapped `formElement="date"` → `formElement="input"` + `dataType=text` with a `YYYY-MM-DD` placeholder and notice. Kept `required-entry`; dropped `validate-date` (the rule needs date-element metadata that text inputs don't carry → JS errors when it tries to validate). The underlying `exception_date` column is unchanged (still stores `YYYY-MM-DD` strings). `ExceptionManager::replaceRows()` handles them the same way regardless of widget. Round-trip verified live: typed `2026-12-25` + Closed=Yes + Reason="Christmas Day", saved, hard-reload, row reappeared.
+
+### Migration
+
+```
+composer update etechflow/module-in-store-pickup
+bin/magento setup:upgrade
+bin/magento setup:di:compile
+bin/magento cache:flush
+docker exec <php-fpm-container> kill -USR2 1   # restart php-fpm — clears OPcache
+```
+
+No schema changes. Pure UI Component XML adjustment.
+
+---
+
 ## [1.1.11] — 2026-05-22 — Pickup Window Overrides + Exception Days dynamicRows wrap/unwrap
 
 Two `<dynamicRows>` fieldsets on the Store edit form ("Pickup Window Overrides" and "Exception Days") had been broken in opposite directions: new rows appeared to save (success toast) but were silently dropped, and saved rows existed in DB but rendered blank on reload. Both stem from the same Magento UI Component contract, only half-implemented.

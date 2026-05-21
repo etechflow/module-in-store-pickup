@@ -627,24 +627,17 @@
                         <item name="componentType" xsi:type="string">container</item>
                     </item>
                 </argument>
-                <field name="exception_date" formElement="date">
+                <field name="exception_date" formElement="input">
                     <settings>
                         <dataType>text</dataType>
                         <label translate="true">Date</label>
                         <dataScope>exception_date</dataScope>
+                        <placeholder translate="true">YYYY-MM-DD</placeholder>
+                        <notice translate="true">Type date as YYYY-MM-DD (e.g. 2026-12-25).</notice>
                         <validation>
                             <rule name="required-entry" xsi:type="boolean">true</rule>
                         </validation>
                     </settings>
-                    <formElements>
-                        <date>
-                            <settings>
-                                <options>
-                                    <option name="dateFormat" xsi:type="string">y-MM-dd</option>
-                                </options>
-                            </settings>
-                        </date>
-                    </formElements>
                 </field>
                 <field name="is_closed" formElement="select">
                     <settings>

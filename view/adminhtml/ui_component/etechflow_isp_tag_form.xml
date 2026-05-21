@@ -58,7 +58,10 @@
                 <dataType>text</dataType>
                 <label translate="true">Label</label>
                 <dataScope>label</dataScope>
-                <notice translate="true">Display label — e.g. "Flagship", "Drive-through", "Express Collection".</notice>
+                <notice translate="true">Badge text — e.g. "Flagship", "Drive-through", "Express Collection".</notice>
+                <tooltip>
+                    <description translate="true">Short word or phrase shown as a badge next to stores that have this tag. Tags help customers filter the store-locator and signal store characteristics. Examples: "Flagship", "24/7 lockers", "Drive-through", "Express", "New Branch". Keep under 20 chars so the badge fits.</description>
+                </tooltip>
                 <validation>
                     <rule name="required-entry" xsi:type="boolean">true</rule>
                 </validation>
@@ -69,9 +72,13 @@
                 <dataType>text</dataType>
                 <label translate="true">Code</label>
                 <dataScope>code</dataScope>
-                <notice translate="true">Short URL-safe identifier — letters, numbers, dashes only. Used as a CSS class hook on the storefront filter.</notice>
+                <notice translate="true">URL-safe identifier — letters, numbers, dashes only. Also a CSS class hook on the storefront filter.</notice>
+                <tooltip>
+                    <description translate="true">Permanent unique handle used in URLs, the database, AND as a CSS class on the storefront (e.g. code "flagship" → class="etf-tag-flagship") so themes can style tag badges differently. Pick short and descriptive ("flagship", "drive-thru", "express-collection"). CANNOT be changed after save.</description>
+                </tooltip>
                 <validation>
                     <rule name="required-entry" xsi:type="boolean">true</rule>
+                    <rule name="validate-code" xsi:type="boolean">true</rule>
                 </validation>
             </settings>
         </field>
@@ -80,7 +87,10 @@
                 <dataType>text</dataType>
                 <label translate="true">Colour</label>
                 <dataScope>colour</dataScope>
-                <notice translate="true">Optional. Hex colour (e.g. "#fbbf24") OR a Tailwind colour keyword (e.g. "amber"). Drives the badge tint in admin + storefront.</notice>
+                <notice translate="true">Optional. Hex code (#fbbf24) or Tailwind keyword (amber, sky, emerald). Drives the badge tint.</notice>
+                <tooltip>
+                    <description translate="true">Colour for the tag badge. Two formats supported: (1) Hex code with leading # (e.g. "#fbbf24" for amber). (2) Tailwind palette name (e.g. "amber", "sky", "emerald", "rose", "violet") — themes that use Tailwind translate this to the correct shade automatically. Leave blank for a neutral grey badge. Pick colours that don't clash with your storefront theme.</description>
+                </tooltip>
             </settings>
         </field>
         <field name="sort_order" formElement="input">
@@ -88,6 +98,10 @@
                 <dataType>number</dataType>
                 <label translate="true">Sort Order</label>
                 <dataScope>sort_order</dataScope>
+                <notice translate="true">Display order in the storefront tag filter. Lower = first. Use 10, 20, 30…</notice>
+                <tooltip>
+                    <description translate="true">When stores have multiple tags, this controls which appears first. Use multiples of 10 for easy insertion (e.g. add "New Branch" as 15 between "Flagship" 10 and "Express" 20).</description>
+                </tooltip>
             </settings>
         </field>
         <field name="is_active" formElement="checkbox">
@@ -95,6 +109,10 @@
                 <dataType>boolean</dataType>
                 <label translate="true">Active</label>
                 <dataScope>is_active</dataScope>
+                <notice translate="true">Tick to show on storefront. Untick to hide badge + filter without deleting.</notice>
+                <tooltip>
+                    <description translate="true">Inactive tags are hidden on the storefront (no badge shown, not in filter) but kept in admin + still associated with their stores. Use for seasonal tags ("Christmas Hours") or to temporarily remove a tag without losing store associations.</description>
+                </tooltip>
                 <prefer>toggle</prefer>
                 <valueMap>
                     <map name="false" xsi:type="number">0</map>

@@ -58,7 +58,10 @@
                 <dataType>text</dataType>
                 <label translate="true">Label</label>
                 <dataScope>label</dataScope>
-                <notice translate="true">Display label — e.g. "Free parking", "Free coffee", "Wheelchair accessible".</notice>
+                <notice translate="true">Customer-facing label — e.g. "Free parking", "Free coffee", "Wheelchair accessible".</notice>
+                <tooltip>
+                    <description translate="true">Text shown to shoppers on the store page next to the icon. Keep it short and concrete — "Free parking", "Wheelchair access", "Locker pickup 24/7", "Bike-friendly". Avoid vague labels like "Amenity" or "Feature".</description>
+                </tooltip>
                 <validation>
                     <rule name="required-entry" xsi:type="boolean">true</rule>
                 </validation>
@@ -69,7 +72,10 @@
                 <dataType>text</dataType>
                 <label translate="true">Code</label>
                 <dataScope>code</dataScope>
-                <notice translate="true">Short URL-safe identifier — letters, numbers, dashes only.</notice>
+                <notice translate="true">URL-safe identifier — letters, numbers, dashes only. e.g. free-parking</notice>
+                <tooltip>
+                    <description translate="true">Permanent unique handle used in URLs and the database. Pick something short and descriptive (e.g. "free-parking"). CANNOT be changed after save without breaking existing store associations.</description>
+                </tooltip>
                 <validation>
                     <rule name="required-entry" xsi:type="boolean">true</rule>
                 </validation>
@@ -80,7 +86,10 @@
                 <dataType>text</dataType>
                 <label translate="true">Icon</label>
                 <dataScope>icon</dataScope>
-                <notice translate="true">Optional. Tabler Icons name (e.g. "parking", "coffee", "wheelchair", "dog"). Leave empty for a generic dot. See https://tabler-icons.io/ for the catalogue.</notice>
+                <notice translate="true">Optional Tabler Icons name (e.g. "parking", "coffee", "wheelchair"). Browse: tabler-icons.io</notice>
+                <tooltip>
+                    <description translate="true">Icon name from the free Tabler Icons set at tabler-icons.io. Browse, find one matching the amenity, paste the name here (no .svg extension). Examples: parking, accessible, wifi, baby-carriage, paw, coffee, bike, charger. Leave blank for a generic dot.</description>
+                </tooltip>
             </settings>
         </field>
         <field name="sort_order" formElement="input">
@@ -88,6 +97,10 @@
                 <dataType>number</dataType>
                 <label translate="true">Sort Order</label>
                 <dataScope>sort_order</dataScope>
+                <notice translate="true">Display order in the store amenities list. Lower = first. Use 10, 20, 30…</notice>
+                <tooltip>
+                    <description translate="true">Controls order on the store-detail page. Lower numbers first. Use multiples of 10 so you can insert new amenities (e.g. add "Bike racks" as 15 between 10 and 20) without renumbering.</description>
+                </tooltip>
             </settings>
         </field>
         <field name="is_active" formElement="checkbox">
@@ -95,6 +108,10 @@
                 <dataType>boolean</dataType>
                 <label translate="true">Active</label>
                 <dataScope>is_active</dataScope>
+                <notice translate="true">Tick to show on the storefront. Untick to hide without deleting.</notice>
+                <tooltip>
+                    <description translate="true">Inactive amenities are hidden on the storefront but kept in admin + still associated with their stores. Use for seasonal items ("Christmas gift wrapping") or temporary removal during renovation.</description>
+                </tooltip>
                 <prefer>toggle</prefer>
                 <valueMap>
                     <map name="false" xsi:type="number">0</map>

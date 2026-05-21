@@ -62,7 +62,10 @@
                 <dataType>text</dataType>
                 <label translate="true">Label</label>
                 <dataScope>label</dataScope>
-                <notice translate="true">Display label — e.g. "Morning (9am-12pm)", "Afternoon (1pm-5pm)".</notice>
+                <notice translate="true">Customer-facing label — e.g. "Morning (9am-12pm)", "Afternoon (1pm-5pm)".</notice>
+                <tooltip>
+                    <description translate="true">What customers see in the pickup-time dropdown at checkout. Be specific so customers can pick the window that suits them: include the time range in the label itself (e.g. "Morning (9am-12pm)") rather than just "Morning" — saves a click.</description>
+                </tooltip>
                 <validation>
                     <rule name="required-entry" xsi:type="boolean">true</rule>
                 </validation>
@@ -73,9 +76,13 @@
                 <dataType>text</dataType>
                 <label translate="true">Code</label>
                 <dataScope>code</dataScope>
-                <notice translate="true">Short URL-safe identifier — letters, numbers, dashes only.</notice>
+                <notice translate="true">URL-safe identifier — letters, numbers, dashes only. e.g. morning-9-12</notice>
+                <tooltip>
+                    <description translate="true">Permanent unique handle for this window used in URLs and the database. Pick something short (e.g. "morning-9-12", "lunchtime", "afternoon-1-5"). CANNOT be changed after save — breaks existing window-to-order associations.</description>
+                </tooltip>
                 <validation>
                     <rule name="required-entry" xsi:type="boolean">true</rule>
+                    <rule name="validate-code" xsi:type="boolean">true</rule>
                 </validation>
             </settings>
         </field>
@@ -84,7 +91,10 @@
                 <dataType>text</dataType>
                 <label translate="true">Start Time</label>
                 <dataScope>start_time</dataScope>
-                <notice translate="true">24-hour format — HH:MM (e.g. 09:00).</notice>
+                <notice translate="true">24-hour format HH:MM. e.g. 09:00. Always in the store's timezone (shown above).</notice>
+                <tooltip>
+                    <description translate="true">When this pickup window begins — the earliest moment customers can collect their order if they pick this window. Use 24-hour format (09:00, 13:00, 17:30 — not 9am / 1pm / 5:30pm) for unambiguous parsing. Always in the store's configured timezone (Stores → Configuration → General → Locale Options).</description>
+                </tooltip>
                 <validation>
                     <rule name="required-entry" xsi:type="boolean">true</rule>
                 </validation>
@@ -95,7 +105,10 @@
                 <dataType>text</dataType>
                 <label translate="true">End Time</label>
                 <dataScope>end_time</dataScope>
-                <notice translate="true">24-hour format — HH:MM (e.g. 17:00). Must be after start time.</notice>
+                <notice translate="true">24-hour HH:MM. Must be after start time. e.g. 17:00</notice>
+                <tooltip>
+                    <description translate="true">When this window ends — the latest moment customers can collect. Must be later than Start Time. Crossing midnight (e.g. 22:00 → 02:00 next day) is NOT supported — split into two separate windows if you need late-night collection.</description>
+                </tooltip>
                 <validation>
                     <rule name="required-entry" xsi:type="boolean">true</rule>
                 </validation>
@@ -106,7 +119,10 @@
                 <dataType>number</dataType>
                 <label translate="true">Capacity</label>
                 <dataScope>capacity</dataScope>
-                <notice translate="true">Maximum orders per store per day in this window. Use 0 for unlimited.</notice>
+                <notice translate="true">Max orders per store per day in this window. 0 = unlimited.</notice>
+                <tooltip>
+                    <description translate="true">Caps how many collection orders can be assigned to this window at a single store on a single day. Useful for preventing staff overload — if "Morning (9-12)" has capacity 20 at Manchester store, the 21st customer picking that window for that date sees it greyed out at checkout. Set to 0 (or leave blank) for unlimited. Capacity counts across all products in an order as 1 slot.</description>
+                </tooltip>
             </settings>
         </field>
         <field name="sort_order" formElement="input">
@@ -114,6 +130,10 @@
                 <dataType>number</dataType>
                 <label translate="true">Sort Order</label>
                 <dataScope>sort_order</dataScope>
+                <notice translate="true">Display order in the checkout window list. Lower = first. Use 10, 20, 30…</notice>
+                <tooltip>
+                    <description translate="true">Controls order in the pickup-window dropdown at checkout. Earliest windows should have lower numbers. Use multiples of 10 so you can insert later (e.g. add "Lunchtime (12-1pm)" as 15 between "Morning" 10 and "Afternoon" 20).</description>
+                </tooltip>
             </settings>
         </field>
         <field name="is_active" formElement="checkbox">
@@ -121,6 +141,10 @@
                 <dataType>boolean</dataType>
                 <label translate="true">Active</label>
                 <dataScope>is_active</dataScope>
+                <notice translate="true">Tick to show at checkout. Untick to hide without deleting.</notice>
+                <tooltip>
+                    <description translate="true">Inactive windows are hidden from the checkout dropdown but kept in admin + on past orders. Use for seasonal windows (e.g. "Saturday early opening" only in December) or temporary suspension (staffing shortage that week).</description>
+                </tooltip>
                 <prefer>toggle</prefer>
                 <valueMap>
                     <map name="false" xsi:type="number">0</map>

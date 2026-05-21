@@ -72,6 +72,10 @@
                 <dataType>text</dataType>
                 <label translate="true">Store Name</label>
                 <dataScope>name</dataScope>
+                <notice translate="true">The customer-facing name shown at checkout (e.g. "Keystation Manchester").</notice>
+                <tooltip>
+                    <description translate="true">This is what shoppers see when picking a collection store at checkout, on the order email, and on the pickup-ready notification. Keep it human-readable; the URL slug is the Code field below.</description>
+                </tooltip>
                 <validation>
                     <rule name="required-entry" xsi:type="boolean">true</rule>
                 </validation>
@@ -82,7 +86,10 @@
                 <dataType>text</dataType>
                 <label translate="true">Code</label>
                 <dataScope>code</dataScope>
-                <notice translate="true">Short URL-safe identifier — letters, numbers, dashes only.</notice>
+                <notice translate="true">URL-safe identifier — letters, numbers, dashes only. e.g. keystation-manchester</notice>
+                <tooltip>
+                    <description translate="true">Permanent unique handle used in store URLs, the database, and API integrations. CANNOT be changed after the store is saved — picks like "keystation-manchester" or "kst-mcr-01". Avoid spaces, underscores, or special characters.</description>
+                </tooltip>
                 <validation>
                     <rule name="required-entry" xsi:type="boolean">true</rule>
                     <rule name="validate-code" xsi:type="boolean">true</rule>
@@ -94,6 +101,10 @@
                 <dataType>boolean</dataType>
                 <label translate="true">Active</label>
                 <dataScope>is_active</dataScope>
+                <notice translate="true">Tick to show this store at checkout. Untick to hide (e.g. temporary closure) without deleting.</notice>
+                <tooltip>
+                    <description translate="true">Inactive stores are hidden from customers at checkout but kept in the admin grid + on past orders. Use this for short-term closures (renovation, holiday cover), seasonal stores, or stores being phased out. To permanently remove a store, use Delete instead.</description>
+                </tooltip>
                 <prefer>toggle</prefer>
                 <valueMap>
                     <map name="false" xsi:type="number">0</map>
@@ -106,6 +117,10 @@
                 <dataType>number</dataType>
                 <label translate="true">Sort Order</label>
                 <dataScope>sort_order</dataScope>
+                <notice translate="true">Display order at checkout. Lower = appears first. Use 10, 20, 30… so you can insert later.</notice>
+                <tooltip>
+                    <description translate="true">Controls the order pickup stores appear in the checkout dropdown. Use multiples of 10 (10, 20, 30...) so you can later insert a new store between two existing ones (e.g. 15) without renumbering everything. Defaults to 0.</description>
+                </tooltip>
             </settings>
         </field>
         <field name="msi_source_code" formElement="input">
@@ -113,7 +128,10 @@
                 <dataType>text</dataType>
                 <label translate="true">MSI Source Code</label>
                 <dataScope>msi_source_code</dataScope>
-                <notice translate="true">Optional. Link to a Magento MSI source for per-store stock checks. Leave empty to use the default source.</notice>
+                <notice translate="true">Optional. Magento Inventory source code for per-store stock. Leave empty to use the default source.</notice>
+                <tooltip>
+                    <description translate="true">If you use Multi-Source Inventory (Magento's MSI module) to track stock per physical location, paste the matching Source Code here (find them under Stores → Inventory → Sources). The checkout will then check THIS source's stock when a customer picks this collection store. Leave blank if you use a single global stock pool.</description>
+                </tooltip>
             </settings>
         </field>
     </fieldset>
@@ -131,7 +149,10 @@
                 <dataType>text</dataType>
                 <label translate="true">Street Address</label>
                 <dataScope>street</dataScope>
-                <notice translate="true">Line 1 + line 2 combined.</notice>
+                <notice translate="true">Building number + street. Two lines if needed (e.g. building name on line 2).</notice>
+                <tooltip>
+                    <description translate="true">Physical street address of the collection point. Shown to customers on the store page, the pickup-ready email, and Google Maps deep-link. Two-line format supported — useful when there's a building name or suite (e.g. "123 High Street" on line 1, "Suite 4B" on line 2). If you use the "Find Address" or "Copy from Source" buttons, this gets filled automatically.</description>
+                </tooltip>
             </settings>
         </field>
         <field name="city" formElement="input">
@@ -139,6 +160,10 @@
                 <dataType>text</dataType>
                 <label translate="true">City</label>
                 <dataScope>city</dataScope>
+                <notice translate="true">e.g. Manchester</notice>
+                <tooltip>
+                    <description translate="true">Just the city or town name. Used in the customer-facing store address display and in admin grid filtering. Don't include county or postcode here.</description>
+                </tooltip>
             </settings>
         </field>
         <field name="region" formElement="input">
@@ -146,6 +171,10 @@
                 <dataType>text</dataType>
                 <label translate="true">Region / County</label>
                 <dataScope>region</dataScope>
+                <notice translate="true">UK: county (e.g. Greater Manchester). US: state. Other: region name.</notice>
+                <tooltip>
+                    <description translate="true">Administrative region — county in the UK, state in the US, province in Canada. Optional but recommended for international customers who need it to disambiguate (e.g. two cities named the same in different states). Auto-filled when using "Find Address" or "Copy from Source".</description>
+                </tooltip>
             </settings>
         </field>
         <field name="postcode" formElement="input">
@@ -153,6 +182,10 @@
                 <dataType>text</dataType>
                 <label translate="true">Postcode</label>
                 <dataScope>postcode</dataScope>
+                <notice translate="true">e.g. M1 1AA. Use the "Find Address" button to autofill the whole address.</notice>
+                <tooltip>
+                    <description translate="true">The postcode (ZIP code outside the UK). UK customers can use the "Find Address" button next to this field to look up the full address via getAddress.io — just type the postcode and pick from the dropdown. Required by many shipping carriers and customer-search-by-postcode features (v1.2+).</description>
+                </tooltip>
             </settings>
         </field>
         <field name="country_code" formElement="select">
@@ -160,7 +193,10 @@
                 <dataType>text</dataType>
                 <label translate="true">Country</label>
                 <dataScope>country_code</dataScope>
-                <notice translate="true">Pick from the list. The ISO 2-letter code is what gets stored.</notice>
+                <notice translate="true">Pick from list. ISO 2-letter code stored (GB, US, FR, etc.).</notice>
+                <tooltip>
+                    <description translate="true">Country of the collection point. Defaults to your store's configured default country (Admin Autofill setting — typically GB for UK stores). Used by the carrier for tax calculation and by the storefront for address formatting (UK postcodes show as "M1 1AA", US as "M1 1AA" with state code, etc.).</description>
+                </tooltip>
             </settings>
             <formElements>
                 <select>
@@ -175,7 +211,10 @@
                 <dataType>text</dataType>
                 <label translate="true">Latitude</label>
                 <dataScope>latitude</dataScope>
-                <notice translate="true">Optional. For the map view (v1.1+).</notice>
+                <notice translate="true">Optional. Decimal e.g. 53.4808. Drives the "find nearest store" feature (v1.2+).</notice>
+                <tooltip>
+                    <description translate="true">Geographic latitude in decimal format (positive = north of equator). Drives the storefront "find nearest collection store" search by customer postcode, plus the admin map view. Look up via Google Maps: right-click any location → click the lat/lng pair to copy. Auto-filled when using "Copy from Source" if the MSI source has it.</description>
+                </tooltip>
             </settings>
         </field>
         <field name="longitude" formElement="input">
@@ -183,7 +222,10 @@
                 <dataType>text</dataType>
                 <label translate="true">Longitude</label>
                 <dataScope>longitude</dataScope>
-                <notice translate="true">Optional. For the map view (v1.1+).</notice>
+                <notice translate="true">Optional. Decimal e.g. -2.2426. Drives the "find nearest store" feature (v1.2+).</notice>
+                <tooltip>
+                    <description translate="true">Geographic longitude in decimal format (positive = east of Greenwich). See Latitude tooltip for the find-nearest-store use case. Both lat AND lng are required for distance calculations — half-filled won't work.</description>
+                </tooltip>
             </settings>
         </field>
     </fieldset>
@@ -200,7 +242,10 @@
                 <dataType>text</dataType>
                 <label translate="true">Description</label>
                 <dataScope>description</dataScope>
-                <notice translate="true">Rich text shown on the storefront store page. HTML allowed.</notice>
+                <notice translate="true">Customer-facing rich text on the storefront store page. HTML allowed.</notice>
+                <tooltip>
+                    <description translate="true">Marketing/info copy shown to shoppers on the store's public page (e.g. "Our flagship Manchester branch offers… parking on Bridge Street, climate-controlled storage…"). HTML allowed — use it for embedded images of the store, links to nearby parking, accessibility info, etc. Leave blank if you don't have a public store-detail page yet.</description>
+                </tooltip>
             </settings>
         </field>
         <field name="pickup_instructions" formElement="textarea">
@@ -208,7 +253,10 @@
                 <dataType>text</dataType>
                 <label translate="true">Pickup Instructions</label>
                 <dataScope>pickup_instructions</dataScope>
-                <notice translate="true">Plain text shown on the pickup-ready email (e.g. "Use the side door — ring the bell").</notice>
+                <notice translate="true">Plain text appended to the pickup-ready email (e.g. "Use the side door — ring the bell").</notice>
+                <tooltip>
+                    <description translate="true">Short practical instructions for the customer when they arrive to collect. Sent in the "Your order is ready for pickup" email AND printed on the pickup label. Examples: "Use the side door on Bridge Lane — ring the bell at the counter", "Bring photo ID and the order code from this email", "Reception desk on Floor 2". Keep under 200 chars — it's a notification, not a manual.</description>
+                </tooltip>
             </settings>
         </field>
         <field name="phone" formElement="input">
@@ -216,6 +264,10 @@
                 <dataType>text</dataType>
                 <label translate="true">Phone</label>
                 <dataScope>phone</dataScope>
+                <notice translate="true">Customer-facing phone for the store (e.g. +44 161 123 4567).</notice>
+                <tooltip>
+                    <description translate="true">Phone number a customer can ring if they're delayed, need to amend their pickup, or have questions before arriving. Shown on the store page + the pickup-ready email. Use international format (+44…) so it works from any country.</description>
+                </tooltip>
             </settings>
         </field>
         <field name="email" formElement="input">
@@ -223,7 +275,10 @@
                 <dataType>text</dataType>
                 <label translate="true">Email</label>
                 <dataScope>email</dataScope>
-                <notice translate="true">Staff at this store get the new-pickup-order email here.</notice>
+                <notice translate="true">Staff inbox for this store — receives new-pickup-order alerts.</notice>
+                <tooltip>
+                    <description translate="true">When a customer places an order for collection at THIS store, staff at this email get a notification: "New pickup order #12345 — collect-by 2026-05-28". Use a shared staff inbox (manchester@…) rather than a personal email so coverage handles staff turnover. Configure the alert toggle in Stores → Configuration → eTechFlow → In-Store Pickup → Notifications.</description>
+                </tooltip>
             </settings>
         </field>
         <field name="manager_name" formElement="input">
@@ -231,6 +286,10 @@
                 <dataType>text</dataType>
                 <label translate="true">Manager Name</label>
                 <dataScope>manager_name</dataScope>
+                <notice translate="true">Optional — the on-site manager's name for internal records.</notice>
+                <tooltip>
+                    <description translate="true">Internal field for the store's manager or main contact person. Used only in admin reporting (not shown to customers). Useful when escalating issues — "I need to speak to the manager of Keystation Manchester" routes to the right person.</description>
+                </tooltip>
             </settings>
         </field>
     </fieldset>

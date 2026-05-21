@@ -62,7 +62,10 @@
                 <dataType>text</dataType>
                 <label translate="true">Name</label>
                 <dataScope>name</dataScope>
-                <notice translate="true">e.g. "Christmas Day", "Bank Holiday Monday".</notice>
+                <notice translate="true">Human-readable name — e.g. "Christmas Day", "Bank Holiday Monday".</notice>
+                <tooltip>
+                    <description translate="true">The holiday's display name. Shown to admins in the holiday grid and on the store-detail page when listing closed dates. Use the proper holiday name customers will recognise (e.g. "Boxing Day", "New Year's Day", "Bank Holiday Monday"). Internal-only holidays (e.g. "Annual Inventory Day") work too.</description>
+                </tooltip>
                 <validation>
                     <rule name="required-entry" xsi:type="boolean">true</rule>
                 </validation>
@@ -73,7 +76,10 @@
                 <dataType>text</dataType>
                 <label translate="true">Date</label>
                 <dataScope>holiday_date</dataScope>
-                <notice translate="true">If "Annual" is set, the month-day part is what recurs each year.</notice>
+                <notice translate="true">When the holiday falls. Year matters only when "Annual" is off.</notice>
+                <tooltip>
+                    <description translate="true">The date the holiday applies. With "Annual" ON (toggle below), only the month-day part is used and the holiday repeats every year — perfect for Christmas Day, New Year's Day, etc. With "Annual" OFF, the full year-month-day applies — use for one-off holidays like Royal Weddings or Coronation days.</description>
+                </tooltip>
                 <validation>
                     <rule name="required-entry" xsi:type="boolean">true</rule>
                 </validation>
@@ -99,7 +105,10 @@
                     <map name="false" xsi:type="number">0</map>
                     <map name="true" xsi:type="number">1</map>
                 </valueMap>
-                <notice translate="true">If on, repeats every year on the same month-day. If off, applies only to that exact date.</notice>
+                <notice translate="true">On = repeats every year on the same month-day. Off = one-off date.</notice>
+                <tooltip>
+                    <description translate="true">Annual holidays (Christmas, New Year, Boxing Day) recur every year — no need to re-create them. One-off holidays (Royal coronations, store closures for renovation) use a specific year. The system uses the month-day from the Date field when Annual is on; the year is ignored.</description>
+                </tooltip>
             </settings>
         </field>
         <field name="is_closed" formElement="checkbox">
@@ -112,7 +121,10 @@
                     <map name="false" xsi:type="number">0</map>
                     <map name="true" xsi:type="number">1</map>
                 </valueMap>
-                <notice translate="true">If on, all stores are closed. Turn off to set reduced opening hours instead.</notice>
+                <notice translate="true">On = all stores closed. Off = stores open with reduced hours (set below).</notice>
+                <tooltip>
+                    <description translate="true">For full closures (e.g. Christmas Day), keep this ON — all pickup stores show as closed and customers can't pick this date at checkout. For reduced-hours days (e.g. Christmas Eve, Bank Holidays where stores open later), turn OFF and fill the Reduced Open / Reduced Close times below.</description>
+                </tooltip>
             </settings>
         </field>
         <field name="reduced_open" formElement="input">
@@ -121,6 +133,9 @@
                 <label translate="true">Reduced Open</label>
                 <dataScope>reduced_open</dataScope>
                 <notice translate="true">Required when "Closed All Day" is off. Accepts "10:00", "10am", "10", etc.</notice>
+                <tooltip>
+                    <description translate="true">Opening time on this reduced-hours date. Overrides the store's regular weekly opening hours for this specific date only. Flexible time format: "10:00", "10am", "10:30 AM" — anything sensible is normalised to HH:MM on save.</description>
+                </tooltip>
                 <imports>
                     <link name="visible">${ $.provider }:${ $.parentScope }.is_closed</link>
                 </imports>
@@ -138,6 +153,9 @@
                 <label translate="true">Reduced Close</label>
                 <dataScope>reduced_close</dataScope>
                 <notice translate="true">Required when "Closed All Day" is off. Accepts "14:00", "2pm", "14", etc.</notice>
+                <tooltip>
+                    <description translate="true">Closing time on this reduced-hours date. Must be later than Reduced Open. Same flexible time format as Open: "14:00", "2pm", "2:30 PM".</description>
+                </tooltip>
                 <imports>
                     <link name="visible">${ $.provider }:${ $.parentScope }.is_closed</link>
                 </imports>
@@ -154,7 +172,10 @@
                 <dataType>text</dataType>
                 <label translate="true">Country</label>
                 <dataScope>country_code</dataScope>
-                <notice translate="true">Optional 2-letter ISO code (GB / IE / US / …). Leave blank for custom (non-public) holidays.</notice>
+                <notice translate="true">Optional 2-letter ISO code (GB / IE / US / …). Blank = custom holiday.</notice>
+                <tooltip>
+                    <description translate="true">Use this when importing public holidays from the etechflow:isp:import-holidays CLI — the country code tells the importer which national holiday calendar to pull. For custom internal holidays (annual inventory days, staff parties), leave blank. The code itself doesn't restrict which stores observe the holiday — that's handled by associating the holiday with specific stores after save.</description>
+                </tooltip>
             </settings>
         </field>
     </fieldset>

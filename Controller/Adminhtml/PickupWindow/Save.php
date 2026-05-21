@@ -5,45 +5,50 @@ declare(strict_types=1);
 namespace ETechFlow\InStorePickup\Controller\Adminhtml\PickupWindow;
 
 use ETechFlow\InStorePickup\Api\PickupWindowRepositoryInterface;
+use ETechFlow\InStorePickup\Controller\Adminhtml\AjaxSaveResultTrait;
 use ETechFlow\InStorePickup\Model\PickupWindowFactory;
 use ETechFlow\InStorePickup\Model\TimeNormalizer;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Action\HttpPostActionInterface;
-use Magento\Framework\Controller\Result\Redirect;
+use Magento\Framework\App\Request\DataPersistorInterface;
+use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Controller\ResultInterface;
 use Psr\Log\LoggerInterface;
 
 class Save extends Action implements HttpPostActionInterface
 {
+    use AjaxSaveResultTrait;
+
     public const ADMIN_RESOURCE = 'ETechFlow_InStorePickup::pickup_windows';
+
+    private const DATA_PERSISTOR_KEY = 'etechflow_isp_pickupwindow';
 
     public function __construct(
         Context $context,
         private readonly PickupWindowRepositoryInterface $pickupWindowRepository,
         private readonly PickupWindowFactory $pickupWindowFactory,
         private readonly TimeNormalizer $timeNormalizer,
+        private readonly DataPersistorInterface $dataPersistor,
+        private readonly JsonFactory $ajaxSaveResultJsonFactory,
         private readonly LoggerInterface $logger
     ) {
         parent::__construct($context);
     }
 
-    /**
-     * @return Redirect
-     */
-    public function execute()
+    public function execute(): ResultInterface
     {
-        /** @var Redirect $redirect */
-        $redirect = $this->resultRedirectFactory->create();
         $data = $this->getRequest()->getPostValue();
-
         if (empty($data)) {
-            return $redirect->setPath('*/*/index');
+            return $this->respondRedirect('*/*/index');
         }
 
         $data = $this->normalisePayload($data);
+        $windowId = (int) ($data['window_id'] ?? 0);
 
         try {
-            $windowId = (int) ($data['window_id'] ?? 0);
+            $this->dataPersistor->set(self::DATA_PERSISTOR_KEY, $data);
+
             $window = $windowId > 0
                 ? $this->pickupWindowRepository->getById($windowId)
                 : $this->pickupWindowFactory->create();
@@ -51,7 +56,7 @@ class Save extends Action implements HttpPostActionInterface
             foreach (['code', 'label', 'start_time', 'end_time'] as $required) {
                 if (empty($data[$required])) {
                     $this->messageManager->addErrorMessage(__('Field "%1" is required.', $required));
-                    return $redirect->setPath('*/*/edit', ['window_id' => $windowId]);
+                    return $this->respondRedirect('*/*/edit', ['window_id' => $windowId], true);
                 }
             }
 
@@ -59,28 +64,29 @@ class Save extends Action implements HttpPostActionInterface
             $normalisedEnd   = $this->timeNormalizer->normalize($data['end_time']);
             if ($normalisedStart === null || $normalisedEnd === null) {
                 $this->messageManager->addErrorMessage(__('Start/End times could not be understood. Try HH:MM (e.g. 09:00), or "9am", "9", "9:30 PM".'));
-                return $redirect->setPath('*/*/edit', ['window_id' => $windowId]);
+                return $this->respondRedirect('*/*/edit', ['window_id' => $windowId], true);
             }
             $data['start_time'] = $normalisedStart;
             $data['end_time']   = $normalisedEnd;
             if ($data['start_time'] >= $data['end_time']) {
                 $this->messageManager->addErrorMessage(__('Start time must be earlier than end time.'));
-                return $redirect->setPath('*/*/edit', ['window_id' => $windowId]);
+                return $this->respondRedirect('*/*/edit', ['window_id' => $windowId], true);
             }
 
             $window->setData(array_merge($window->getData(), $data));
             $this->pickupWindowRepository->save($window);
 
+            $this->dataPersistor->clear(self::DATA_PERSISTOR_KEY);
             $this->messageManager->addSuccessMessage(__('Pickup window saved: %1', $window->getLabel()));
 
-            if ($this->getRequest()->getParam('back')) {
-                return $redirect->setPath('*/*/edit', ['window_id' => $window->getWindowId()]);
-            }
-            return $redirect->setPath('*/*/index');
+            return $this->respondRedirect(
+                '*/*/edit',
+                ['window_id' => $window->getWindowId(), '_current' => true]
+            );
         } catch (\Throwable $e) {
             $this->logger->error('ETechFlow_InStorePickup: pickup-window save failed.', ['exception' => $e->getMessage()]);
             $this->messageManager->addErrorMessage(__('Could not save pickup window: %1', $e->getMessage()));
-            return $redirect->setPath('*/*/edit', ['window_id' => (int) ($data['window_id'] ?? 0)]);
+            return $this->respondRedirect('*/*/edit', ['window_id' => $windowId], true);
         }
     }
 
@@ -99,10 +105,5 @@ class Save extends Action implements HttpPostActionInterface
         $data['sort_order'] = (int) ($data['sort_order'] ?? 0);
         $data['capacity']   = (int) ($data['capacity'] ?? 0);
         return $data;
-    }
-
-    private function isHhMm(string $value): bool
-    {
-        return (bool) preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d$/', $value);
     }
 }

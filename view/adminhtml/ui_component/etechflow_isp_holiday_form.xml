@@ -95,37 +95,42 @@
                 </date>
             </formElements>
         </field>
-        <field name="is_recurring" formElement="checkbox">
+        <!-- v1.1.8: see amenity_form.xml for the toggle → select rationale. -->
+        <field name="is_recurring" formElement="select">
             <settings>
-                <dataType>boolean</dataType>
+                <dataType>number</dataType>
                 <label translate="true">Annual</label>
                 <dataScope>is_recurring</dataScope>
-                <prefer>toggle</prefer>
-                <valueMap>
-                    <map name="false" xsi:type="number">0</map>
-                    <map name="true" xsi:type="number">1</map>
-                </valueMap>
-                <notice translate="true">On = repeats every year on the same month-day. Off = one-off date.</notice>
+                <notice translate="true">Yes = repeats every year on the same month-day. No = one-off date.</notice>
                 <tooltip>
-                    <description translate="true">Annual holidays (Christmas, New Year, Boxing Day) recur every year — no need to re-create them. One-off holidays (Royal coronations, store closures for renovation) use a specific year. The system uses the month-day from the Date field when Annual is on; the year is ignored.</description>
+                    <description translate="true">Annual holidays (Christmas, New Year, Boxing Day) recur every year — no need to re-create them. One-off holidays (Royal coronations, store closures for renovation) use a specific year. The system uses the month-day from the Date field when Annual is Yes; the year is ignored.</description>
                 </tooltip>
             </settings>
+            <formElements>
+                <select>
+                    <settings>
+                        <options class="Magento\Config\Model\Config\Source\Yesno"/>
+                    </settings>
+                </select>
+            </formElements>
         </field>
-        <field name="is_closed" formElement="checkbox">
+        <field name="is_closed" formElement="select">
             <settings>
-                <dataType>boolean</dataType>
+                <dataType>number</dataType>
                 <label translate="true">Closed All Day</label>
                 <dataScope>is_closed</dataScope>
-                <prefer>toggle</prefer>
-                <valueMap>
-                    <map name="false" xsi:type="number">0</map>
-                    <map name="true" xsi:type="number">1</map>
-                </valueMap>
-                <notice translate="true">On = all stores closed. Off = stores open with reduced hours (set below).</notice>
+                <notice translate="true">Yes = all stores closed. No = stores open with reduced hours (set below).</notice>
                 <tooltip>
-                    <description translate="true">For full closures (e.g. Christmas Day), keep this ON — all pickup stores show as closed and customers can't pick this date at checkout. For reduced-hours days (e.g. Christmas Eve, Bank Holidays where stores open later), turn OFF and fill the Reduced Open / Reduced Close times below.</description>
+                    <description translate="true">For full closures (e.g. Christmas Day), keep this YES — all pickup stores show as closed and customers can't pick this date at checkout. For reduced-hours days (e.g. Christmas Eve, Bank Holidays where stores open later), set NO and fill the Reduced Open / Reduced Close times below.</description>
                 </tooltip>
             </settings>
+            <formElements>
+                <select>
+                    <settings>
+                        <options class="Magento\Config\Model\Config\Source\Yesno"/>
+                    </settings>
+                </select>
+            </formElements>
         </field>
         <field name="reduced_open" formElement="input">
             <settings>

@@ -103,21 +103,33 @@
                 </tooltip>
             </settings>
         </field>
-        <field name="is_active" formElement="checkbox">
+        <!--
+            v1.1.8: switched from formElement="checkbox" (with valueMap +
+            <prefer>toggle</prefer>) to formElement="select" + Magento's
+            standard Yesno source model. The checkbox toggle's display
+            state proved unreliable across Hyva Commerce admin themes
+            (display showed OFF even when DB held 1); the Yes/No dropdown
+            is what Magento Core uses for every system-config is_active
+            field and renders identically everywhere. UX trade-off: a
+            dropdown instead of a toggle. Data shape is unchanged (0/1).
+        -->
+        <field name="is_active" formElement="select">
             <settings>
-                <dataType>boolean</dataType>
+                <dataType>number</dataType>
                 <label translate="true">Active</label>
                 <dataScope>is_active</dataScope>
-                <notice translate="true">Tick to show on the storefront. Untick to hide without deleting.</notice>
+                <notice translate="true">Yes = show on storefront. No = hide without deleting.</notice>
                 <tooltip>
                     <description translate="true">Inactive amenities are hidden on the storefront but kept in admin + still associated with their stores. Use for seasonal items ("Christmas gift wrapping") or temporary removal during renovation.</description>
                 </tooltip>
-                <prefer>toggle</prefer>
-                <valueMap>
-                    <map name="false" xsi:type="number">0</map>
-                    <map name="true" xsi:type="number">1</map>
-                </valueMap>
             </settings>
+            <formElements>
+                <select>
+                    <settings>
+                        <options class="Magento\Config\Model\Config\Source\Yesno"/>
+                    </settings>
+                </select>
+            </formElements>
         </field>
     </fieldset>
 </form>

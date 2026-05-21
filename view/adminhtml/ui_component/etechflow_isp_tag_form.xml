@@ -104,21 +104,24 @@
                 </tooltip>
             </settings>
         </field>
-        <field name="is_active" formElement="checkbox">
+        <!-- v1.1.8: see amenity_form.xml for the toggle → select rationale. -->
+        <field name="is_active" formElement="select">
             <settings>
-                <dataType>boolean</dataType>
+                <dataType>number</dataType>
                 <label translate="true">Active</label>
                 <dataScope>is_active</dataScope>
-                <notice translate="true">Tick to show on storefront. Untick to hide badge + filter without deleting.</notice>
+                <notice translate="true">Yes = show badge + filter on storefront. No = hide without deleting.</notice>
                 <tooltip>
-                    <description translate="true">Inactive tags are hidden on the storefront (no badge shown, not in filter) but kept in admin + still associated with their stores. Use for seasonal tags ("Christmas Hours") or to temporarily remove a tag without losing store associations.</description>
+                    <description translate="true">Inactive tags are hidden on the storefront (no badge, not in filter) but kept in admin + still associated with their stores. Use for seasonal tags or to temporarily remove without losing store associations.</description>
                 </tooltip>
-                <prefer>toggle</prefer>
-                <valueMap>
-                    <map name="false" xsi:type="number">0</map>
-                    <map name="true" xsi:type="number">1</map>
-                </valueMap>
             </settings>
+            <formElements>
+                <select>
+                    <settings>
+                        <options class="Magento\Config\Model\Config\Source\Yesno"/>
+                    </settings>
+                </select>
+            </formElements>
         </field>
     </fieldset>
 </form>

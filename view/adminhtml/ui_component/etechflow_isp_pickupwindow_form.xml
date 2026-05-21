@@ -136,21 +136,24 @@
                 </tooltip>
             </settings>
         </field>
-        <field name="is_active" formElement="checkbox">
+        <!-- v1.1.8: see amenity_form.xml for the toggle → select rationale. -->
+        <field name="is_active" formElement="select">
             <settings>
-                <dataType>boolean</dataType>
+                <dataType>number</dataType>
                 <label translate="true">Active</label>
                 <dataScope>is_active</dataScope>
-                <notice translate="true">Tick to show at checkout. Untick to hide without deleting.</notice>
+                <notice translate="true">Yes = show at checkout. No = hide without deleting.</notice>
                 <tooltip>
                     <description translate="true">Inactive windows are hidden from the checkout dropdown but kept in admin + on past orders. Use for seasonal windows (e.g. "Saturday early opening" only in December) or temporary suspension (staffing shortage that week).</description>
                 </tooltip>
-                <prefer>toggle</prefer>
-                <valueMap>
-                    <map name="false" xsi:type="number">0</map>
-                    <map name="true" xsi:type="number">1</map>
-                </valueMap>
             </settings>
+            <formElements>
+                <select>
+                    <settings>
+                        <options class="Magento\Config\Model\Config\Source\Yesno"/>
+                    </settings>
+                </select>
+            </formElements>
         </field>
     </fieldset>
 </form>

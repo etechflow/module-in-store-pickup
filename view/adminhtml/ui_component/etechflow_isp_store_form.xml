@@ -96,21 +96,23 @@
                 </validation>
             </settings>
         </field>
-        <field name="is_active" formElement="checkbox">
+        <field name="is_active" formElement="select">
             <settings>
-                <dataType>boolean</dataType>
+                <dataType>number</dataType>
                 <label translate="true">Active</label>
                 <dataScope>is_active</dataScope>
                 <notice translate="true">Tick to show this store at checkout. Untick to hide (e.g. temporary closure) without deleting.</notice>
                 <tooltip>
                     <description translate="true">Inactive stores are hidden from customers at checkout but kept in the admin grid + on past orders. Use this for short-term closures (renovation, holiday cover), seasonal stores, or stores being phased out. To permanently remove a store, use Delete instead.</description>
                 </tooltip>
-                <prefer>toggle</prefer>
-                <valueMap>
-                    <map name="false" xsi:type="number">0</map>
-                    <map name="true" xsi:type="number">1</map>
-                </valueMap>
             </settings>
+            <formElements>
+                <select>
+                    <settings>
+                        <options class="Magento\Config\Model\Config\Source\Yesno"/>
+                    </settings>
+                </select>
+            </formElements>
         </field>
         <field name="sort_order" formElement="input">
             <settings>
@@ -319,15 +321,18 @@
                     <item name="additionalClasses" xsi:type="string">admin__field-group-row</item>
                 </item>
             </argument>
-            <field name="hours_0_is_closed" formElement="checkbox" sortOrder="10">
+            <field name="hours_0_is_closed" formElement="select" sortOrder="10">
                 <settings>
-                    <dataType>boolean</dataType>
+                    <dataType>number</dataType>
                     <dataScope>hours_0_is_closed</dataScope>
-                    <valueMap>
-                        <map name="false" xsi:type="number">0</map>
-                        <map name="true" xsi:type="number">1</map>
-                    </valueMap>
                 </settings>
+                <formElements>
+                    <select>
+                        <settings>
+                            <options class="Magento\Config\Model\Config\Source\Yesno"/>
+                        </settings>
+                    </select>
+                </formElements>
             </field>
             <field name="hours_0_open_time" formElement="input" sortOrder="20">
                 <settings>
@@ -356,15 +361,18 @@
                     <item name="formElement" xsi:type="string">container</item>
                 </item>
             </argument>
-            <field name="hours_1_is_closed" formElement="checkbox" sortOrder="10">
+            <field name="hours_1_is_closed" formElement="select" sortOrder="10">
                 <settings>
-                    <dataType>boolean</dataType>
+                    <dataType>number</dataType>
                     <dataScope>hours_1_is_closed</dataScope>
-                    <valueMap>
-                        <map name="false" xsi:type="number">0</map>
-                        <map name="true" xsi:type="number">1</map>
-                    </valueMap>
                 </settings>
+                <formElements>
+                    <select>
+                        <settings>
+                            <options class="Magento\Config\Model\Config\Source\Yesno"/>
+                        </settings>
+                    </select>
+                </formElements>
             </field>
             <field name="hours_1_open_time" formElement="input" sortOrder="20">
                 <settings>
@@ -393,15 +401,18 @@
                     <item name="formElement" xsi:type="string">container</item>
                 </item>
             </argument>
-            <field name="hours_2_is_closed" formElement="checkbox" sortOrder="10">
+            <field name="hours_2_is_closed" formElement="select" sortOrder="10">
                 <settings>
-                    <dataType>boolean</dataType>
+                    <dataType>number</dataType>
                     <dataScope>hours_2_is_closed</dataScope>
-                    <valueMap>
-                        <map name="false" xsi:type="number">0</map>
-                        <map name="true" xsi:type="number">1</map>
-                    </valueMap>
                 </settings>
+                <formElements>
+                    <select>
+                        <settings>
+                            <options class="Magento\Config\Model\Config\Source\Yesno"/>
+                        </settings>
+                    </select>
+                </formElements>
             </field>
             <field name="hours_2_open_time" formElement="input" sortOrder="20">
                 <settings>
@@ -430,15 +441,18 @@
                     <item name="formElement" xsi:type="string">container</item>
                 </item>
             </argument>
-            <field name="hours_3_is_closed" formElement="checkbox" sortOrder="10">
+            <field name="hours_3_is_closed" formElement="select" sortOrder="10">
                 <settings>
-                    <dataType>boolean</dataType>
+                    <dataType>number</dataType>
                     <dataScope>hours_3_is_closed</dataScope>
-                    <valueMap>
-                        <map name="false" xsi:type="number">0</map>
-                        <map name="true" xsi:type="number">1</map>
-                    </valueMap>
                 </settings>
+                <formElements>
+                    <select>
+                        <settings>
+                            <options class="Magento\Config\Model\Config\Source\Yesno"/>
+                        </settings>
+                    </select>
+                </formElements>
             </field>
             <field name="hours_3_open_time" formElement="input" sortOrder="20">
                 <settings>
@@ -467,15 +481,18 @@
                     <item name="formElement" xsi:type="string">container</item>
                 </item>
             </argument>
-            <field name="hours_4_is_closed" formElement="checkbox" sortOrder="10">
+            <field name="hours_4_is_closed" formElement="select" sortOrder="10">
                 <settings>
-                    <dataType>boolean</dataType>
+                    <dataType>number</dataType>
                     <dataScope>hours_4_is_closed</dataScope>
-                    <valueMap>
-                        <map name="false" xsi:type="number">0</map>
-                        <map name="true" xsi:type="number">1</map>
-                    </valueMap>
                 </settings>
+                <formElements>
+                    <select>
+                        <settings>
+                            <options class="Magento\Config\Model\Config\Source\Yesno"/>
+                        </settings>
+                    </select>
+                </formElements>
             </field>
             <field name="hours_4_open_time" formElement="input" sortOrder="20">
                 <settings>
@@ -504,15 +521,18 @@
                     <item name="formElement" xsi:type="string">container</item>
                 </item>
             </argument>
-            <field name="hours_5_is_closed" formElement="checkbox" sortOrder="10">
+            <field name="hours_5_is_closed" formElement="select" sortOrder="10">
                 <settings>
-                    <dataType>boolean</dataType>
+                    <dataType>number</dataType>
                     <dataScope>hours_5_is_closed</dataScope>
-                    <valueMap>
-                        <map name="false" xsi:type="number">0</map>
-                        <map name="true" xsi:type="number">1</map>
-                    </valueMap>
                 </settings>
+                <formElements>
+                    <select>
+                        <settings>
+                            <options class="Magento\Config\Model\Config\Source\Yesno"/>
+                        </settings>
+                    </select>
+                </formElements>
             </field>
             <field name="hours_5_open_time" formElement="input" sortOrder="20">
                 <settings>
@@ -541,15 +561,18 @@
                     <item name="formElement" xsi:type="string">container</item>
                 </item>
             </argument>
-            <field name="hours_6_is_closed" formElement="checkbox" sortOrder="10">
+            <field name="hours_6_is_closed" formElement="select" sortOrder="10">
                 <settings>
-                    <dataType>boolean</dataType>
+                    <dataType>number</dataType>
                     <dataScope>hours_6_is_closed</dataScope>
-                    <valueMap>
-                        <map name="false" xsi:type="number">0</map>
-                        <map name="true" xsi:type="number">1</map>
-                    </valueMap>
                 </settings>
+                <formElements>
+                    <select>
+                        <settings>
+                            <options class="Magento\Config\Model\Config\Source\Yesno"/>
+                        </settings>
+                    </select>
+                </formElements>
             </field>
             <field name="hours_6_open_time" formElement="input" sortOrder="20">
                 <settings>
@@ -623,15 +646,18 @@
                         </date>
                     </formElements>
                 </field>
-                <field name="is_closed" formElement="checkbox">
+                <field name="is_closed" formElement="select">
                     <settings>
-                        <dataType>boolean</dataType>
+                        <dataType>number</dataType>
                         <dataScope>is_closed</dataScope>
-                        <valueMap>
-                            <map name="false" xsi:type="number">0</map>
-                            <map name="true" xsi:type="number">1</map>
-                        </valueMap>
                     </settings>
+                    <formElements>
+                        <select>
+                            <settings>
+                                <options class="Magento\Config\Model\Config\Source\Yesno"/>
+                            </settings>
+                        </select>
+                    </formElements>
                 </field>
                 <field name="open_time" formElement="input">
                     <settings>
@@ -720,16 +746,19 @@
                         </select>
                     </formElements>
                 </field>
-                <field name="is_disabled" formElement="checkbox">
+                <field name="is_disabled" formElement="select">
                     <settings>
-                        <dataType>boolean</dataType>
+                        <dataType>number</dataType>
                         <label translate="true">Disabled for this Store</label>
                         <dataScope>is_disabled</dataScope>
-                        <valueMap>
-                            <map name="false" xsi:type="number">0</map>
-                            <map name="true" xsi:type="number">1</map>
-                        </valueMap>
                     </settings>
+                    <formElements>
+                        <select>
+                            <settings>
+                                <options class="Magento\Config\Model\Config\Source\Yesno"/>
+                            </settings>
+                        </select>
+                    </formElements>
                 </field>
                 <field name="capacity_override" formElement="input">
                     <settings>

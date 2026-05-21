@@ -44,6 +44,13 @@ class Save extends Action implements HttpPostActionInterface
         $data = $this->normalisePayload($data);
         $amenityId = (int) ($data['amenity_id'] ?? 0);
 
+        // v1.1.6 fix: form posts amenity_id=0 for new amenities. Leaving
+        // it in $data means setData() copies it to the entity, making
+        // AbstractModel emit UPDATE WHERE amenity_id=0 (0 rows affected,
+        // no exception, controller hits success branch but no row was
+        // ever inserted). Strip it here so new amenities actually INSERT.
+        unset($data['amenity_id']);
+
         try {
             // Persist BEFORE validation — if anything throws, the form
             // rehydrates from this on the next page load.

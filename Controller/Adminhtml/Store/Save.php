@@ -73,6 +73,22 @@ class Save extends Action implements HttpPostActionInterface
         $data = $this->normalisePayload($data);
         $storeId = (int) ($data['store_id'] ?? 0);
 
+        // v1.1.6 fix: the UI Component form posts store_id=0 for new stores.
+        // If we leave that in $data, the subsequent `$store->setData($data)`
+        // copies store_id=0 onto the entity, and Magento's AbstractModel
+        // treats it as an EXISTING row with PK=0 — emitting
+        //   UPDATE etechflow_isp_store SET ... WHERE store_id=0
+        // which matches 0 rows, no exception, no insert. The controller
+        // STILL hits its success branch (because save() didn't throw),
+        // shows "Store saved", and redirects to /edit/store_id/0/ —
+        // where the form re-renders blank. Customer's words: "It said
+        // saved but the form is empty".
+        //
+        // Strip it here so the new-store path actually inserts. For an
+        // existing store, $storeId still holds the int — we use that
+        // separately to load the row above this point.
+        unset($data['store_id']);
+
         try {
             // Persist form data BEFORE we touch the DB — if anything later
             // throws, the DataProvider rehydrates the form from this on

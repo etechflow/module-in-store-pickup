@@ -47,6 +47,10 @@ class Save extends Action implements HttpPostActionInterface
         $data = $this->normalisePayload($data);
         $tagId = (int) ($data['tag_id'] ?? 0);
 
+        // v1.1.6 fix: strip tag_id=0 so new tags INSERT (not UPDATE WHERE id=0).
+        // See Store/Save.php for the full root-cause explanation.
+        unset($data['tag_id']);
+
         try {
             $this->dataPersistor->set(self::DATA_PERSISTOR_KEY, $data);
 

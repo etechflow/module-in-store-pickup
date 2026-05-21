@@ -86,8 +86,24 @@ class DataProvider extends AbstractDataProvider
                 $row['hours_' . $weekday . '_open_time']  = $hr['open_time'];
                 $row['hours_' . $weekday . '_close_time'] = $hr['close_time'];
             }
-            $row['exceptions']       = array_values($this->exceptionManager->getRows($storeId));
-            $row['window_overrides'] = array_values($this->windowOverrideManager->getRows($storeId));
+            // v1.1.11 fix: dynamicRows expects its rows wrapped under its
+            // own dataScope name — NOT as a flat array — that's how the
+            // form's record-template adapter binds existing rows to its
+            // internal records observable. Each row also needs a unique
+            // `record_id` or the component renders nothing on form load,
+            // even though the data is present.
+            $row['exceptions'] = [
+                'exceptions' => $this->prepareDynamicRows(
+                    $this->exceptionManager->getRows($storeId),
+                    'is_closed'
+                ),
+            ];
+            $row['window_overrides'] = [
+                'window_overrides' => $this->prepareDynamicRows(
+                    $this->windowOverrideManager->getRows($storeId),
+                    'is_disabled'
+                ),
+            ];
             $this->loadedData[$storeId] = $row;
         }
 
@@ -122,5 +138,27 @@ class DataProvider extends AbstractDataProvider
             }
         }
         return $row;
+    }
+
+    /**
+     * Shape rows for a dynamicRows component:
+     *   - Reindex with `record_id` (component requires a unique row key
+     *     or it renders nothing — data is loaded but invisible)
+     *   - Cast the boolean column to int 0/1 to match the Yes/No
+     *     (or Open/Closed) select valueMap on that field
+     *
+     * @param array<int, array<string, mixed>> $rows
+     * @param string                           $boolField
+     * @return array<int, array<string, mixed>>
+     */
+    private function prepareDynamicRows(array $rows, string $boolField): array
+    {
+        $rows = array_values($rows);
+        foreach ($rows as $i => $row) {
+            $row[$boolField] = (int) ($row[$boolField] ?? 0);
+            $row['record_id'] = $i;
+            $rows[$i] = $row;
+        }
+        return $rows;
     }
 }

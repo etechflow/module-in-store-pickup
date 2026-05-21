@@ -127,8 +127,13 @@ class Save extends Action implements HttpPostActionInterface
 
             $amenityIds      = $data['assigned_amenity_ids'] ?? null;
             $tagIds          = $data['assigned_tag_ids']     ?? null;
-            $exceptionsRows  = isset($data['exceptions'])       && is_array($data['exceptions'])       ? $data['exceptions']       : null;
-            $windowOverrides = isset($data['window_overrides']) && is_array($data['window_overrides']) ? $data['window_overrides'] : null;
+            // v1.1.11 fix: dynamicRows posts its rows nested under its own
+            // dataScope key — {"exceptions": [...rows]} — rather than as a
+            // flat array. The previous shape check treated the outer dict as
+            // the row list, so $row['window_id'] / $row['exception_date'] were
+            // undefined and ReplaceRows silently skipped every row.
+            $exceptionsRows  = $this->unwrapDynamicRows($data['exceptions']       ?? null, 'exceptions');
+            $windowOverrides = $this->unwrapDynamicRows($data['window_overrides'] ?? null, 'window_overrides');
             $hoursRows       = $this->extractHoursRows($data);
             unset(
                 $data['assigned_amenity_ids'],
@@ -271,6 +276,30 @@ class Save extends Action implements HttpPostActionInterface
             $data['longitude'] = null;
         }
 
+        return $data;
+    }
+
+    /**
+     * Unwrap one level of dataScope-nested serialisation from a Magento
+     * UI Component dynamicRows component.
+     *
+     * The component sometimes posts its rows as `{"<scope>": [...rows]}`
+     * instead of a flat array, depending on how the parent fieldset's
+     * dataScope is wired. Returns a flat rows array (or null if the
+     * payload was missing/empty).
+     *
+     * @param mixed  $data
+     * @param string $key
+     * @return array<int, mixed>|null
+     */
+    private function unwrapDynamicRows($data, string $key): ?array
+    {
+        if (!is_array($data) || empty($data)) {
+            return null;
+        }
+        if (isset($data[$key]) && is_array($data[$key])) {
+            return $data[$key];
+        }
         return $data;
     }
 

@@ -4,6 +4,34 @@ All notable changes to this module. Adheres to [Semantic Versioning](https://sem
 
 ---
 
+## [1.1.11] — 2026-05-22 — Pickup Window Overrides + Exception Days dynamicRows wrap/unwrap
+
+Two `<dynamicRows>` fieldsets on the Store edit form ("Pickup Window Overrides" and "Exception Days") had been broken in opposite directions: new rows appeared to save (success toast) but were silently dropped, and saved rows existed in DB but rendered blank on reload. Both stem from the same Magento UI Component contract, only half-implemented.
+
+### Fixed
+
+- **New `window_overrides` / `exceptions` rows silently skipped on save.** POST payload from `dynamicRows` arrives nested under the component's dataScope: `{"window_overrides": {"window_overrides": [...rows]}}`. The Save controller iterated the outer dict as the row list, got the inner array as a "row", `$row['window_id']` / `$row['exception_date']` was undefined → 0 → the no-op skip in `WindowOverrideManager::replaceRows()` / `ExceptionManager::replaceRows()` silently dropped every row. **Fix:** `Store\Save::unwrapDynamicRows($data, $key)` strips one level of dataScope nesting before passing to the manager. If `$data[<key>]` exists and is an array, returns it; otherwise returns `$data` as-is. Used for both `exceptions` and `window_overrides`.
+
+- **Saved `window_overrides` / `exceptions` rows invisible on reload.** The DataProvider returned rows as a flat array under their dataScope. The `dynamicRows` component's record-template adapter binds existing rows via a wrapped shape AND requires each row to have a unique `record_id` — without either, it sees data it doesn't recognise and renders zero rows even though the DB has them. **Fix:** `Ui\Component\Form\DataProvider::prepareDynamicRows($rows, $boolField)` reindexes the rows, assigns `record_id = $i` per row, and casts the bool column to int 0/1 (matches the select valueMap). Output is then wrapped: `$row['<scope>'] = ['<scope>' => $rows]`. Now the DataProvider-emit shape and Save-receive shape are reciprocal.
+
+### Unchanged
+
+- DB schema and the no-op skip logic in `WindowOverrideManager` / `ExceptionManager` (the skip was correct — it just wasn't seeing real rows). v1.1.10's amenity/tag multiselect string-cast and Open/Closed source model both still apply.
+
+### Migration
+
+```
+composer update etechflow/module-in-store-pickup
+bin/magento setup:upgrade
+bin/magento setup:di:compile
+bin/magento cache:flush
+docker exec <php-fpm-container> kill -USR2 1   # restart php-fpm — clears OPcache
+```
+
+No schema changes. No data migration. Pure controller + DataProvider layer.
+
+---
+
 ## [1.1.10] — 2026-05-22 — Open/Closed labels + amenity/tag multiselect highlight fix
 
 Two related "saved but doesn't look saved" admin-form polish fixes, both rooted in Magento UI Component strict-equality semantics.

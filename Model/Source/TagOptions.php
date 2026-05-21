@@ -20,7 +20,10 @@ class TagOptions implements OptionSourceInterface
     }
 
     /**
-     * @return array<int, array{value: int, label: string}>
+     * Values returned as strings — see {@see AmenityOptions::toOptionArray()}
+     * for the strict-equality reason.
+     *
+     * @return array<int, array{value: string, label: string}>
      */
     public function toOptionArray(): array
     {
@@ -32,7 +35,7 @@ class TagOptions implements OptionSourceInterface
         foreach ($collection as $tag) {
             /** @var \ETechFlow\InStorePickup\Model\Tag $tag */
             $options[] = [
-                'value' => (int) $tag->getTagId(),
+                'value' => (string) $tag->getTagId(),
                 'label' => (string) $tag->getLabel(),
             ];
         }

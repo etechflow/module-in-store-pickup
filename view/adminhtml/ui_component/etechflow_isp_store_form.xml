@@ -329,7 +329,7 @@
                 <formElements>
                     <select>
                         <settings>
-                            <options class="Magento\Config\Model\Config\Source\Yesno"/>
+                            <options class="ETechFlow\InStorePickup\Model\Source\OpenClosed"/>
                         </settings>
                     </select>
                 </formElements>
@@ -369,7 +369,7 @@
                 <formElements>
                     <select>
                         <settings>
-                            <options class="Magento\Config\Model\Config\Source\Yesno"/>
+                            <options class="ETechFlow\InStorePickup\Model\Source\OpenClosed"/>
                         </settings>
                     </select>
                 </formElements>
@@ -409,7 +409,7 @@
                 <formElements>
                     <select>
                         <settings>
-                            <options class="Magento\Config\Model\Config\Source\Yesno"/>
+                            <options class="ETechFlow\InStorePickup\Model\Source\OpenClosed"/>
                         </settings>
                     </select>
                 </formElements>
@@ -449,7 +449,7 @@
                 <formElements>
                     <select>
                         <settings>
-                            <options class="Magento\Config\Model\Config\Source\Yesno"/>
+                            <options class="ETechFlow\InStorePickup\Model\Source\OpenClosed"/>
                         </settings>
                     </select>
                 </formElements>
@@ -489,7 +489,7 @@
                 <formElements>
                     <select>
                         <settings>
-                            <options class="Magento\Config\Model\Config\Source\Yesno"/>
+                            <options class="ETechFlow\InStorePickup\Model\Source\OpenClosed"/>
                         </settings>
                     </select>
                 </formElements>
@@ -529,7 +529,7 @@
                 <formElements>
                     <select>
                         <settings>
-                            <options class="Magento\Config\Model\Config\Source\Yesno"/>
+                            <options class="ETechFlow\InStorePickup\Model\Source\OpenClosed"/>
                         </settings>
                     </select>
                 </formElements>
@@ -569,7 +569,7 @@
                 <formElements>
                     <select>
                         <settings>
-                            <options class="Magento\Config\Model\Config\Source\Yesno"/>
+                            <options class="ETechFlow\InStorePickup\Model\Source\OpenClosed"/>
                         </settings>
                     </select>
                 </formElements>
@@ -655,7 +655,7 @@
                     <formElements>
                         <select>
                             <settings>
-                                <options class="Magento\Config\Model\Config\Source\Yesno"/>
+                                <options class="ETechFlow\InStorePickup\Model\Source\OpenClosed"/>
                             </settings>
                         </select>
                     </formElements>

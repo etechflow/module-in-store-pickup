@@ -22,7 +22,12 @@ class AmenityOptions implements OptionSourceInterface
     }
 
     /**
-     * @return array<int, array{value: int, label: string}>
+     * Values are returned as strings — Magento's multiselect compares the
+     * selected-IDs array (which arrives as strings from POST / from the
+     * DataProvider) against option values with strict equality. Int vs
+     * string mismatch leaves saved selections unhighlighted on reload.
+     *
+     * @return array<int, array{value: string, label: string}>
      */
     public function toOptionArray(): array
     {
@@ -34,7 +39,7 @@ class AmenityOptions implements OptionSourceInterface
         foreach ($collection as $amenity) {
             /** @var \ETechFlow\InStorePickup\Model\Amenity $amenity */
             $options[] = [
-                'value' => (int) $amenity->getAmenityId(),
+                'value' => (string) $amenity->getAmenityId(),
                 'label' => (string) $amenity->getLabel(),
             ];
         }

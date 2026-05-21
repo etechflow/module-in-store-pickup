@@ -119,15 +119,15 @@
                 <dataType>number</dataType>
                 <label translate="true">Closed All Day</label>
                 <dataScope>is_closed</dataScope>
-                <notice translate="true">Yes = all stores closed. No = stores open with reduced hours (set below).</notice>
+                <notice translate="true">Closed = all stores closed. Open = stores trade with reduced hours (set below).</notice>
                 <tooltip>
-                    <description translate="true">For full closures (e.g. Christmas Day), keep this YES — all pickup stores show as closed and customers can't pick this date at checkout. For reduced-hours days (e.g. Christmas Eve, Bank Holidays where stores open later), set NO and fill the Reduced Open / Reduced Close times below.</description>
+                    <description translate="true">For full closures (e.g. Christmas Day), keep this CLOSED — all pickup stores show as closed and customers can't pick this date at checkout. For reduced-hours days (e.g. Christmas Eve, Bank Holidays where stores open later), set this to OPEN and fill the Reduced Open / Reduced Close times below.</description>
                 </tooltip>
             </settings>
             <formElements>
                 <select>
                     <settings>
-                        <options class="Magento\Config\Model\Config\Source\Yesno"/>
+                        <options class="ETechFlow\InStorePickup\Model\Source\OpenClosed"/>
                     </settings>
                 </select>
             </formElements>

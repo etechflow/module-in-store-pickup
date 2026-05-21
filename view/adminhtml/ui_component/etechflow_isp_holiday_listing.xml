@@ -99,7 +99,7 @@
         </column>
         <column name="is_closed" component="Magento_Ui/js/grid/columns/select">
             <settings>
-                <options class="Magento\Config\Model\Config\Source\Yesno"/>
+                <options class="ETechFlow\InStorePickup\Model\Source\OpenClosed"/>
                 <dataType>select</dataType>
                 <filter>select</filter>
                 <label translate="true">Closed All Day</label>

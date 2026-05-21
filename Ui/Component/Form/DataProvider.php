@@ -64,16 +64,20 @@ class DataProvider extends AbstractDataProvider
             /** @var \ETechFlow\InStorePickup\Model\Store $store */
             $storeId = (int) $store->getStoreId();
             $row = $this->castBooleans($store->getData());
-            $row['assigned_amenity_ids'] = $this->assignmentManager->getAssigned(
+            // Cast to string arrays — the multiselect compares against the
+            // option values ([[AmenityOptions]] / [[TagOptions]] also strings)
+            // with strict equality; int 1 vs string "1" leaves previously
+            // saved selections unhighlighted on reload.
+            $row['assigned_amenity_ids'] = array_map('strval', $this->assignmentManager->getAssigned(
                 'etechflow_isp_store_amenity',
                 'amenity_id',
                 $storeId
-            );
-            $row['assigned_tag_ids'] = $this->assignmentManager->getAssigned(
+            ));
+            $row['assigned_tag_ids'] = array_map('strval', $this->assignmentManager->getAssigned(
                 'etechflow_isp_store_tag',
                 'tag_id',
                 $storeId
-            );
+            ));
             $hours = $this->hoursManager->getRows($storeId);
             foreach ($hours as $weekday => $hr) {
                 // HoursManager.getRows() already casts is_closed to int — but be

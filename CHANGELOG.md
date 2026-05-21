@@ -4,6 +4,37 @@ All notable changes to this module. Adheres to [Semantic Versioning](https://sem
 
 ---
 
+## [1.1.10] — 2026-05-22 — Open/Closed labels + amenity/tag multiselect highlight fix
+
+Two related "saved but doesn't look saved" admin-form polish fixes, both rooted in Magento UI Component strict-equality semantics.
+
+### Changed
+
+- **`is_closed` dropdowns now show "Open / Closed" instead of "Yes / No".** v1.1.8 replaced the broken toggle sliders with Yes/No selects — that landed but Keystation flagged a UX issue: a "Yes / No" dropdown above the weekday rows reads ambiguously ("Yes" parses as a confirmation, not as "yes, closed"). Especially in the exception_days dynamicRows where rows have no row-level label. Introduced `ETechFlow\InStorePickup\Model\Source\OpenClosed` returning the same int 0/1 the column has always stored (value=0 → "Open", value=1 → "Closed"). Wired into the 9 controls that hold `is_closed`: 7 weekday selects + exception_days select in the Store form, the holiday Closed-All-Day select + listing column. Other Yes/No fields (is_active on store/amenity/tag, is_disabled on window_overrides, is_recurring on holiday) untouched — Yes/No is correct there. **DB column, save handler, imports/visibility links all unchanged — labels-only.**
+
+### Fixed
+
+- **Amenity / Tag multiselect: saved IDs not highlighted on reload.** Saving correctly persisted N amenity IDs, but reopening the Store form showed zero selections highlighted. Same strict-equality category as the v1.1.7 single-checkbox bug — opposite direction:
+  - `AmenityOptions` / `TagOptions` returned `value=(int)$id`.
+  - `DataProvider` returned the saved-IDs array as `int[]` (`AssignmentManager::getAssigned()` casts via `intval`).
+  - But the multiselect compares the selected-IDs array against option values with `===`, and POST submits IDs as strings.
+  - `int 1 !== string "1"` → nothing pre-selected on reload.
+  - **Fix:** cast to string on BOTH sides. `AmenityOptions::toOptionArray()` and `TagOptions::toOptionArray()` now emit `value=(string)$id`; `Ui/Component/Form/DataProvider::getData()` wraps both `assigned_amenity_ids` / `assigned_tag_ids` with `array_map('strval', …)`. Docblocks on both Options classes flag the strict-equality reason so the cast doesn't get "cleaned up" later.
+
+### Migration
+
+```
+composer update etechflow/module-in-store-pickup
+bin/magento setup:upgrade
+bin/magento setup:di:compile
+bin/magento cache:flush
+docker exec <php-fpm-container> kill -USR2 1   # or restart php-fpm — clears OPcache
+```
+
+No schema changes. No data migration. Pure UI / DataProvider layer.
+
+---
+
 ## [1.0.1] — 2026-05-20 — Install-on-Hyvä hotfix
 
 Two real bugs surfaced during the first install on a Hyvä client store. Both fixed.

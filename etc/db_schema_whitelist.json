@@ -1,12 +1,28 @@
 {
   "etechflow_isp_store": {
     "column": {
-      "store_id": true, "code": true, "name": true, "is_active": true,
-      "description": true, "pickup_instructions": true, "street": true,
-      "city": true, "region": true, "postcode": true, "country_code": true,
-      "latitude": true, "longitude": true, "phone": true, "email": true,
-      "manager_name": true, "image": true, "sort_order": true,
-      "msi_source_code": true, "created_at": true, "updated_at": true
+      "store_id": true,
+      "code": true,
+      "name": true,
+      "is_active": true,
+      "description": true,
+      "pickup_instructions": true,
+      "street": true,
+      "city": true,
+      "region": true,
+      "postcode": true,
+      "country_code": true,
+      "latitude": true,
+      "longitude": true,
+      "phone": true,
+      "email": true,
+      "manager_name": true,
+      "image": true,
+      "sort_order": true,
+      "msi_source_code": true,
+      "created_at": true,
+      "updated_at": true,
+      "slot_capacity": true
     },
     "constraint": {
       "PRIMARY": true,
@@ -20,8 +36,14 @@
   },
   "etechflow_isp_store_hours": {
     "column": {
-      "hours_id": true, "store_id": true, "weekday": true, "is_closed": true,
-      "open_time": true, "close_time": true, "break_start": true, "break_end": true
+      "hours_id": true,
+      "store_id": true,
+      "weekday": true,
+      "is_closed": true,
+      "open_time": true,
+      "close_time": true,
+      "break_start": true,
+      "break_end": true
     },
     "constraint": {
       "PRIMARY": true,
@@ -31,8 +53,13 @@
   },
   "etechflow_isp_store_exception": {
     "column": {
-      "exception_id": true, "store_id": true, "exception_date": true,
-      "is_closed": true, "open_time": true, "close_time": true, "reason": true
+      "exception_id": true,
+      "store_id": true,
+      "exception_date": true,
+      "is_closed": true,
+      "open_time": true,
+      "close_time": true,
+      "reason": true
     },
     "constraint": {
       "PRIMARY": true,
@@ -45,9 +72,14 @@
   },
   "etechflow_isp_holiday": {
     "column": {
-      "holiday_id": true, "name": true, "holiday_date": true,
-      "is_recurring": true, "is_closed": true, "reduced_open": true,
-      "reduced_close": true, "country_code": true
+      "holiday_id": true,
+      "name": true,
+      "holiday_date": true,
+      "is_recurring": true,
+      "is_closed": true,
+      "reduced_open": true,
+      "reduced_close": true,
+      "country_code": true
     },
     "constraint": {
       "PRIMARY": true
@@ -59,7 +91,9 @@
   },
   "etechflow_isp_store_holiday_exclusion": {
     "column": {
-      "exclusion_id": true, "store_id": true, "holiday_id": true
+      "exclusion_id": true,
+      "store_id": true,
+      "holiday_id": true
     },
     "constraint": {
       "PRIMARY": true,
@@ -70,8 +104,12 @@
   },
   "etechflow_isp_amenity": {
     "column": {
-      "amenity_id": true, "code": true, "label": true, "icon": true,
-      "sort_order": true, "is_active": true
+      "amenity_id": true,
+      "code": true,
+      "label": true,
+      "icon": true,
+      "sort_order": true,
+      "is_active": true
     },
     "constraint": {
       "PRIMARY": true,
@@ -80,7 +118,9 @@
   },
   "etechflow_isp_store_amenity": {
     "column": {
-      "link_id": true, "store_id": true, "amenity_id": true
+      "link_id": true,
+      "store_id": true,
+      "amenity_id": true
     },
     "constraint": {
       "PRIMARY": true,
@@ -91,8 +131,12 @@
   },
   "etechflow_isp_tag": {
     "column": {
-      "tag_id": true, "code": true, "label": true, "colour": true,
-      "sort_order": true, "is_active": true
+      "tag_id": true,
+      "code": true,
+      "label": true,
+      "colour": true,
+      "sort_order": true,
+      "is_active": true
     },
     "constraint": {
       "PRIMARY": true,
@@ -101,7 +145,9 @@
   },
   "etechflow_isp_store_tag": {
     "column": {
-      "link_id": true, "store_id": true, "tag_id": true
+      "link_id": true,
+      "store_id": true,
+      "tag_id": true
     },
     "constraint": {
       "PRIMARY": true,
@@ -112,9 +158,14 @@
   },
   "etechflow_isp_pickup_window": {
     "column": {
-      "window_id": true, "code": true, "label": true,
-      "start_time": true, "end_time": true, "capacity": true,
-      "sort_order": true, "is_active": true
+      "window_id": true,
+      "code": true,
+      "label": true,
+      "start_time": true,
+      "end_time": true,
+      "capacity": true,
+      "sort_order": true,
+      "is_active": true
     },
     "constraint": {
       "PRIMARY": true,
@@ -123,14 +174,45 @@
   },
   "etechflow_isp_store_pickup_window": {
     "column": {
-      "override_id": true, "store_id": true, "window_id": true,
-      "is_disabled": true, "capacity_override": true
+      "override_id": true,
+      "store_id": true,
+      "window_id": true,
+      "is_disabled": true,
+      "capacity_override": true
     },
     "constraint": {
       "PRIMARY": true,
       "ETECHFLOW_ISP_SPW_STORE_FK": true,
       "ETECHFLOW_ISP_SPW_WINDOW_FK": true,
       "ETECHFLOW_ISP_SPW_STORE_WINDOW": true
+    }
+  },
+  "quote": {
+    "column": {
+      "etechflow_isp_pickup_store_id": true,
+      "etechflow_isp_pickup_at": true
+    },
+    "index": {
+      "ETECHFLOW_ISP_QUOTE_PICKUP_STORE": true,
+      "ETECHFLOW_ISP_QUOTE_PICKUP_AT": true
+    }
+  },
+  "sales_order": {
+    "column": {
+      "etechflow_isp_pickup_store_id": true,
+      "etechflow_isp_pickup_at": true
+    },
+    "index": {
+      "ETECHFLOW_ISP_ORDER_PICKUP_STORE": true,
+      "ETECHFLOW_ISP_ORDER_PICKUP_AT": true
+    }
+  },
+  "sales_order_grid": {
+    "column": {
+      "etechflow_isp_pickup_at": true
+    },
+    "index": {
+      "ETECHFLOW_ISP_ORDER_GRID_PICKUP_AT": true
     }
   }
 }

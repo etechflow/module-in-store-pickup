@@ -48,6 +48,7 @@
         <column xsi:type="varchar" name="image" length="255" nullable="true" comment="Hero image filename (relative to pub/media/etechflow/isp/)"/>
         <column xsi:type="int" name="sort_order" padding="10" unsigned="true" nullable="false" default="0" comment="Display order in admin grid + storefront list"/>
         <column xsi:type="varchar" name="msi_source_code" length="64" nullable="true" comment="Optional link to a Magento MSI source. When set, stock checks consult this source."/>
+        <column xsi:type="int" name="slot_capacity" padding="10" unsigned="true" nullable="false" default="10" comment="v2.0 — max number of pickup bookings per 1-hour slot at this store"/>
         <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="Created at"/>
         <column xsi:type="timestamp" name="updated_at" on_update="true" nullable="false" default="CURRENT_TIMESTAMP" comment="Updated at"/>
         <constraint xsi:type="primary" referenceId="PRIMARY">
@@ -287,5 +288,45 @@
             <column name="store_id"/>
             <column name="window_id"/>
         </constraint>
+    </table>
+
+    <!-- ============================================================
+         v2.0: Extend quote + sales_order with pickup slot fields.
+
+         The customer's pickup choice (store + datetime) lives on the
+         quote during checkout and gets mirrored to the order via the
+         PromotePickupToOrder observer when the order is placed.
+
+         No FK on store_id here — if a store is later deleted, we want
+         the order history to preserve "they picked store X" even if
+         X no longer exists (denormalised for historical accuracy).
+         ============================================================ -->
+    <table name="quote" resource="checkout">
+        <column xsi:type="int" name="etechflow_isp_pickup_store_id" padding="10" unsigned="true" nullable="true" comment="v2.0 — selected ISP store for pickup (no FK; nullable)"/>
+        <column xsi:type="datetime" name="etechflow_isp_pickup_at" nullable="true" comment="v2.0 — chosen pickup datetime (start of 1-hour slot, server timezone)"/>
+        <index referenceId="ETECHFLOW_ISP_QUOTE_PICKUP_STORE" indexType="btree">
+            <column name="etechflow_isp_pickup_store_id"/>
+        </index>
+        <index referenceId="ETECHFLOW_ISP_QUOTE_PICKUP_AT" indexType="btree">
+            <column name="etechflow_isp_pickup_at"/>
+        </index>
+    </table>
+
+    <table name="sales_order" resource="sales">
+        <column xsi:type="int" name="etechflow_isp_pickup_store_id" padding="10" unsigned="true" nullable="true" comment="v2.0 — mirror of quote.etechflow_isp_pickup_store_id"/>
+        <column xsi:type="datetime" name="etechflow_isp_pickup_at" nullable="true" comment="v2.0 — mirror of quote.etechflow_isp_pickup_at"/>
+        <index referenceId="ETECHFLOW_ISP_ORDER_PICKUP_STORE" indexType="btree">
+            <column name="etechflow_isp_pickup_store_id"/>
+        </index>
+        <index referenceId="ETECHFLOW_ISP_ORDER_PICKUP_AT" indexType="btree">
+            <column name="etechflow_isp_pickup_at"/>
+        </index>
+    </table>
+
+    <table name="sales_order_grid" resource="sales">
+        <column xsi:type="datetime" name="etechflow_isp_pickup_at" nullable="true" comment="v2.0 — pickup slot for sortable/filterable admin grid column"/>
+        <index referenceId="ETECHFLOW_ISP_ORDER_GRID_PICKUP_AT" indexType="btree">
+            <column name="etechflow_isp_pickup_at"/>
+        </index>
     </table>
 </schema>

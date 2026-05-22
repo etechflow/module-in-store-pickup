@@ -4,6 +4,38 @@ All notable changes to this module. Adheres to [Semantic Versioning](https://sem
 
 ---
 
+## [1.3.1] — 2026-05-22 — Pivot picker to informational card (Hyvä Checkout interactivity deferred)
+
+### Changed
+
+- **Picker template stripped of interactivity, now renders as a purely informational card.** v1.3.0 added Alpine.js click handlers that would find the matching shipping-method radio and trigger it on card click. Three+ hours of vendor-level debugging on a live Hyvä Checkout install showed Alpine hydrating correctly (Proxy in `_x_dataStack`) but `@click` handlers never firing — and inline `<script>` debug logs never appeared either, strongly suggesting Magento CSP is stripping inline script-equivalents on Hyvä Checkout pages (more aggressive than on standard frontend). Without local browser-DevTools + a Hyvä Checkout developer to nail down which mechanism is intercepting clicks, the interactive picker can't be confirmed working — so v1.3.1 stops trying.
+
+  The card now lists active pickup stores (name + address + phone) and ends with a clear instruction: "Select your preferred shop from the shipping methods list below." Customer reads the card, scrolls to the standard Magento shipping-method radio list (one radio per store, from the carrier), clicks the matching radio. Standard Magento shipping commit fires; `ShippingAddressAutofillPlugin` reads the carrier code (`etechflow_isp_<store_code>`) and overwrites the shipping address with the picked store's address — the wrong-tax-bug kill we have over every competing C&C module still works.
+
+### Trade-off vs Amasty's interactive PDP/checkout pattern
+
+- Customer scrolls a few inches to commit instead of one-tap.
+- We're still meaningfully ahead of the client's pre-ISP module on every other axis: PDP "Click & Collect available" widget (v1.2.0), per-store stock badges, address auto-fill, PIN system, rich admin (stores/holidays/tags/amenities/pickup windows).
+
+### Deferred
+
+The interactive picker (clickable cards that drive the shipping-method radio without a scroll) returns in v2.0 once the CSP/Hyvä-Checkout interaction is properly debugged in a local environment. The `Block/Checkout/PickupStorePicker.php` data interface is unchanged — only the template was simplified. When v2.0 lands, it's a template-only swap.
+
+### Migration
+
+```
+composer update etechflow/module-in-store-pickup
+bin/magento setup:upgrade
+bin/magento setup:di:compile
+bin/magento setup:static-content:deploy -f
+bin/magento cache:flush
+docker restart <php-fpm-container>
+```
+
+No data migration. No behaviour change for orders, autofill, PIN emails, or admin pages.
+
+---
+
 ## [1.3.0] — 2026-05-22 — Drop Magewire; render store picker via Block + Alpine.js (architectural fix)
 
 The v1.2.1 container-name fix (`checkout.shipping.before` → `checkout.shipping.methods.before`) was necessary but not sufficient. The picker still didn't render on Hyvä Checkout because of an architectural mismatch: `StorePicker` extended `\Magewirephp\Magewire\Component` directly, but Hyvä Checkout has its own Magewire bootstrap pipeline that only hydrates components implementing its form-abstraction interfaces. Even with the container right, Hyvä's JS never bound to the block.

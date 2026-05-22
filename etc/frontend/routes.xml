@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!--
+    v2.0 — frontend route for the AJAX pickup-slot picker.
+    Endpoints under /etechflow_isp/pickup/<action>:
+      stores  → list active stores
+      dates   → list bookable dates for a store (next 1-14 days)
+      slots   → list 1-hour slots for store+date (with capacity check)
+      select  → save store + slot to quote
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:App/etc/routes.xsd">
+    <router id="standard">
+        <route id="etechflow_isp" frontName="etechflow_isp">
+            <module name="ETechFlow_InStorePickup"/>
+        </route>
+    </router>
+</config>

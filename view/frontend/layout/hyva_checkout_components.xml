@@ -1,44 +1,31 @@
 <?xml version="1.0"?>
+<!--
+    v2.0 architecture change:
+
+    The v1.x picker card list at `checkout.shipping.methods.before`
+    is replaced by the modal — clicking the single "Pick up in store"
+    radio opens the picker overlay (location → date → time). The old
+    PickupStorePicker block remains in code for backwards-compat with
+    any project pinning ^1.x, but the v2.0 layout doesn't render it.
+
+    v2.0 wires:
+    - <head> loads pickup-modal.css + pickup-modal.js (always — they're
+      tiny and the JS no-ops when the modal element isn't on page)
+    - The modal phtml is mounted into checkout.shipping.methods.after
+      so it lives in the same DOM region as the radios it listens to.
+-->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="ETechFlow_InStorePickup::css/pickup-modal.css"/>
+        <script src="ETechFlow_InStorePickup::js/pickup-modal.js"/>
+    </head>
     <body>
-        <!--
-            Hyvä Checkout pickup-store picker mount (v1.3.0).
-
-            Renders the picker card list at checkout.shipping.methods.before,
-            i.e. immediately above the shipping-method radios. Clicking a
-            card runs Alpine.js client-side, which finds the matching
-            radio (etechflow_isp_<store_code>) and triggers click + change,
-            which fires our ShippingAddressAutofillPlugin and tax-correct
-            shipping address pre-fill.
-
-            v1.3.0 — architectural refactor: dropped Magewire entirely.
-            The v1.0.x – v1.2.x picker extended
-            \Magewirephp\Magewire\Component directly, which doesn't
-            participate in Hyvä Checkout's Magewire bootstrap pipeline
-            (Hyvä Checkout only hydrates components implementing its
-            form-abstraction interfaces). The block silently failed to
-            mount on every install since v1.0.0. v1.2.1 fixed the
-            container name; v1.3.0 fixes the actual hydration by replacing
-            Magewire with plain server-render + Alpine.js, which Hyvä
-            Checkout supports natively and which doesn't require any
-            framework-specific bootstrap.
-
-            v1.2.1 — corrected container name from `checkout.shipping.before`
-            (doesn't exist) to `checkout.shipping.methods.before`. The
-            container fix is retained because it's correct on its own
-            — the v1.3.0 Block-based picker still mounts here.
-
-            On stores without Hyvä Checkout (plain Hyvä Theme, Luma), this
-            layout handle never triggers — those flows use the standard
-            Magento shipping-method radio list (one radio per active
-            store, from the carrier in Phase 6).
-        -->
-        <referenceContainer name="checkout.shipping.methods.before">
-            <block class="ETechFlow\InStorePickup\Block\Checkout\PickupStorePicker"
-                   name="etechflow.isp.checkout.pickup_store_picker"
-                   template="ETechFlow_InStorePickup::checkout/pickup-store-picker.phtml"
-                   before="-"/>
+        <referenceContainer name="checkout.shipping.methods.after">
+            <block class="Magento\Framework\View\Element\Template"
+                   name="etechflow.isp.checkout.pickup_modal"
+                   template="ETechFlow_InStorePickup::checkout/pickup-modal.phtml"
+                   after="-"/>
         </referenceContainer>
     </body>
 </page>

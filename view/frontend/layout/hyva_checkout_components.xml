@@ -3,40 +3,42 @@
       xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
         <!--
-            Hyvä Checkout reads this layout file to discover and mount
-            additional checkout components. The container ID
-            `checkout.shipping.methods.before` renders BEFORE the shipping-
-            method radio list — placing the store picker first lets the
-            customer choose a pickup location, which then auto-fills their
-            shipping address (Phase 7 plugin).
+            Hyvä Checkout pickup-store picker mount (v1.3.0).
 
-            v1.2.1 fix: previous releases referenced `checkout.shipping.before`,
-            which doesn't exist in Hyvä Checkout. The block was being added
-            to a non-existent container, never rendered, and customers fell
-            back to the plain shipping-method radio list (one method per
-            store, from our Carrier). Confirmed via `bin/magento dev:di:info`
-            on the deployed admin: the real shipping-area containers are
-            checkout.shipping.methods.before / .after, checkout.shipping.section,
-            checkout.shipping-details.before / .section.
+            Renders the picker card list at checkout.shipping.methods.before,
+            i.e. immediately above the shipping-method radios. Clicking a
+            card runs Alpine.js client-side, which finds the matching
+            radio (etechflow_isp_<store_code>) and triggers click + change,
+            which fires our ShippingAddressAutofillPlugin and tax-correct
+            shipping address pre-fill.
 
-            The Magewire component class extends \Magewirephp\Magewire\Component.
-            That class is only autoloaded by Hyvä Checkout — stores without
-            Hyvä Checkout never reach this layout handle, so the class file
-            sits inert on disk.
+            v1.3.0 — architectural refactor: dropped Magewire entirely.
+            The v1.0.x – v1.2.x picker extended
+            \Magewirephp\Magewire\Component directly, which doesn't
+            participate in Hyvä Checkout's Magewire bootstrap pipeline
+            (Hyvä Checkout only hydrates components implementing its
+            form-abstraction interfaces). The block silently failed to
+            mount on every install since v1.0.0. v1.2.1 fixed the
+            container name; v1.3.0 fixes the actual hydration by replacing
+            Magewire with plain server-render + Alpine.js, which Hyvä
+            Checkout supports natively and which doesn't require any
+            framework-specific bootstrap.
 
-            On stores without Hyvä Checkout (plain Hyvä Theme, Luma), the
-            customer instead picks a store via the standard Magento shipping-
-            method radio list (one method per active store).
+            v1.2.1 — corrected container name from `checkout.shipping.before`
+            (doesn't exist) to `checkout.shipping.methods.before`. The
+            container fix is retained because it's correct on its own
+            — the v1.3.0 Block-based picker still mounts here.
+
+            On stores without Hyvä Checkout (plain Hyvä Theme, Luma), this
+            layout handle never triggers — those flows use the standard
+            Magento shipping-method radio list (one radio per active
+            store, from the carrier in Phase 6).
         -->
         <referenceContainer name="checkout.shipping.methods.before">
-            <block name="etechflow.isp.store.picker.magewire"
-                   template="ETechFlow_InStorePickup::magewire/checkout/store-picker.phtml">
-                <arguments>
-                    <argument name="magewire" xsi:type="object">
-                        ETechFlow\InStorePickup\Magewire\Checkout\StorePicker
-                    </argument>
-                </arguments>
-            </block>
+            <block class="ETechFlow\InStorePickup\Block\Checkout\PickupStorePicker"
+                   name="etechflow.isp.checkout.pickup_store_picker"
+                   template="ETechFlow_InStorePickup::checkout/pickup-store-picker.phtml"
+                   before="-"/>
         </referenceContainer>
     </body>
 </page>

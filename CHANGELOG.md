@@ -4,6 +4,41 @@ All notable changes to this module. Adheres to [Semantic Versioning](https://sem
 
 ---
 
+## [1.3.0] — 2026-05-22 — Drop Magewire; render store picker via Block + Alpine.js (architectural fix)
+
+The v1.2.1 container-name fix (`checkout.shipping.before` → `checkout.shipping.methods.before`) was necessary but not sufficient. The picker still didn't render on Hyvä Checkout because of an architectural mismatch: `StorePicker` extended `\Magewirephp\Magewire\Component` directly, but Hyvä Checkout has its own Magewire bootstrap pipeline that only hydrates components implementing its form-abstraction interfaces. Even with the container right, Hyvä's JS never bound to the block.
+
+The "proper Magewire fix" is a meaningful research project (reading Hyvä Checkout's vendor source, implementing the right form interface, testing against Hyvä's bootstrap pipeline). v1.3.0 sidesteps that entirely by dropping Magewire — the picker doesn't actually need server-state reactivity, only visual selection-highlighting, which Alpine.js handles natively without framework lock-in.
+
+### Changed
+
+- **New picker implementation: `Block/Checkout/PickupStorePicker.php` + `view/frontend/templates/checkout/pickup-store-picker.phtml`.** Plain Magento block (no Magewire base class) renders the active-store card list server-side. Alpine.js `x-data` tracks the visually-selected card. Clicking a card calls `pick(code)`, which (1) sets `selected` for visual highlighting, and (2) finds the matching shipping-method radio (`input[type=radio][value="etechflow_isp_<code>"]`) and triggers its `click()` + `change` event. Standard Magento shipping commit fires, which runs `ShippingAddressAutofillPlugin`, which overwrites the shipping address with the picked store's address (the tax-bug-kill differentiator).
+
+- **Layout update: `view/frontend/layout/hyva_checkout_components.xml`** now mounts the new block class instead of the Magewire component. Container (`checkout.shipping.methods.before`, retained from v1.2.1) is unchanged.
+
+- **Deprecated: `Magewire/Checkout/StorePicker.php`.** Marked `@deprecated` in the class docblock; left on disk for backwards-compatibility with any integrator referencing it. Safe to delete in a future major release.
+
+### Why this is the right fix, not a workaround
+
+- The picker is decorative state — Magewire's server round-trip was overkill even when it worked.
+- Alpine.js works on every Magento checkout flavour that ships Alpine (Hyvä Checkout, Hyvä Theme, Luma installs with Alpine). No Hyvä-Checkout-specific bootstrap required.
+- No regression to the carrier / autofill / order placement path — those continue using Magento's standard shipping-method mechanism. The picker click just simulates a radio click.
+
+### Migration
+
+```
+composer update etechflow/module-in-store-pickup
+bin/magento setup:upgrade
+bin/magento setup:di:compile
+bin/magento setup:static-content:deploy -f
+bin/magento cache:flush
+docker restart <php-fpm-container>
+```
+
+No data migration. On next checkout, customers will see the rich card UI for the first time since v1.0.0. The bare-radio fallback path is unchanged for non-Hyvä-Checkout flows.
+
+---
+
 ## [1.2.1] — 2026-05-22 — CRITICAL: Magewire store picker has never rendered on Hyvä Checkout (wrong container name)
 
 ### Fixed

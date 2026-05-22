@@ -10,7 +10,26 @@ use ETechFlow\InStorePickup\Model\Config;
 use ETechFlow\InStorePickup\Model\Performance\Profiler;
 
 /**
- * Magewire-native store picker for Hyvä Checkout.
+ * @deprecated since v1.3.0 — superseded by
+ *             {@see \ETechFlow\InStorePickup\Block\Checkout\PickupStorePicker}
+ *             (plain Block + Alpine.js, no Magewire dependency).
+ *
+ * This class extended \Magewirephp\Magewire\Component directly, which is
+ * incompatible with Hyvä Checkout's Magewire bootstrap pipeline (Hyvä
+ * Checkout only hydrates components implementing its form-abstraction
+ * interfaces). Result: every install from v1.0.0 through v1.2.1 silently
+ * rendered the bare shipping-method radio fallback at checkout instead of
+ * the rich card UI, even when the layout container name was correct.
+ *
+ * v1.3.0 sidestepped the architectural mismatch entirely by switching to
+ * a regular Block + Alpine.js client-side state. The new picker works on
+ * Hyvä Checkout, Hyvä Theme, and any Magento checkout that includes
+ * Alpine.js — no framework-specific bootstrap required.
+ *
+ * Kept in place for backwards-compatibility on the off-chance an integrator
+ * referenced this class directly. Safe to delete in a future major release.
+ *
+ * Magewire-native store picker for Hyvä Checkout (legacy).
  *
  * The second true Magewire component in the eTechFlow suite (after DD's
  * DeliveryDatePicker v1.4.0). Same architecture: public state lives on

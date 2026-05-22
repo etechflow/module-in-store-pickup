@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!--
+    v2.0 — Inject the pickup info card into the admin order view,
+    in the order_info container (above the items table). Block
+    auto-suppresses for non-pickup orders.
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="order_info">
+            <block class="ETechFlow\InStorePickup\Block\Adminhtml\Sales\Order\PickupInfo"
+                   name="etechflow.isp.adminhtml.pickup_info"
+                   template="ETechFlow_InStorePickup::sales/order/pickup-info.phtml"
+                   after="-"/>
+        </referenceContainer>
+    </body>
+</page>

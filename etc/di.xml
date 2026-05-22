@@ -148,4 +148,11 @@
                 type="ETechFlow\InStorePickup\Plugin\Quote\ShippingAddressAutofillPlugin"
                 sortOrder="100"/>
     </type>
+
+    <!-- v2.0: Block order placement when ISP carrier selected but no pickup chosen -->
+    <type name="Magento\Quote\Api\CartManagementInterface">
+        <plugin name="etechflow_isp_pickup_validator"
+                type="ETechFlow\InStorePickup\Plugin\Quote\PickupValidatorPlugin"
+                sortOrder="100"/>
+    </type>
 </config>

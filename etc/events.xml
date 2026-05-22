@@ -5,5 +5,8 @@
     <event name="sales_order_place_after">
         <observer name="etechflow_isp_staff_alert"
                   instance="ETechFlow\InStorePickup\Observer\StaffAlertObserver"/>
+        <!-- v2.0: mirror etechflow_isp_pickup_at to sales_order_grid -->
+        <observer name="etechflow_isp_order_grid_sync"
+                  instance="ETechFlow\InStorePickup\Observer\OrderGridSyncObserver"/>
     </event>
 </config>

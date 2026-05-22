@@ -27,6 +27,8 @@ class Config
     private const XML_PATH_USE_BED_ETA               = 'etechflow_instorepickup/integrations/use_bed_eta';
     private const XML_PATH_SEND_PICKUP_READY         = 'etechflow_instorepickup/notifications/send_pickup_ready';
     private const XML_PATH_SEND_STAFF_ALERT          = 'etechflow_instorepickup/notifications/send_staff_alert';
+    private const XML_PATH_PDP_WIDGET_ENABLED        = 'etechflow_instorepickup/pdp_widget/enabled';
+    private const XML_PATH_PDP_WIDGET_DISPLAY_MODE   = 'etechflow_instorepickup/pdp_widget/display_mode';
 
     public function __construct(
         private readonly ScopeConfigInterface $scopeConfig,
@@ -160,6 +162,34 @@ class Config
     public function isSendStaffAlert(?int $storeId = null): bool
     {
         return $this->scopeConfig->isSetFlag(self::XML_PATH_SEND_STAFF_ALERT, ScopeInterface::SCOPE_STORE, $storeId);
+    }
+
+    /**
+     * Whether the PDP "Click & Collect available" widget renders. Composed
+     * with isEnabled() at the block level — both must be true.
+     *
+     * @param int|null $storeId
+     * @return bool
+     */
+    public function isPdpWidgetEnabled(?int $storeId = null): bool
+    {
+        $value = $this->scopeConfig->getValue(self::XML_PATH_PDP_WIDGET_ENABLED, ScopeInterface::SCOPE_STORE, $storeId);
+        if ($value === null || $value === '') {
+            return true;  // default on — the widget is the main v1.2.0 feature
+        }
+        return (bool) $value;
+    }
+
+    /**
+     * Returns 'simple' or 'per_store'. Block coerces unknown values to 'simple'.
+     *
+     * @param int|null $storeId
+     * @return string
+     */
+    public function getPdpWidgetDisplayMode(?int $storeId = null): string
+    {
+        return (string) ($this->scopeConfig->getValue(self::XML_PATH_PDP_WIDGET_DISPLAY_MODE, ScopeInterface::SCOPE_STORE, $storeId)
+            ?: 'per_store');
     }
 
     /**

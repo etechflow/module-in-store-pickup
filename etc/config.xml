@@ -35,6 +35,10 @@
                 <use_dd_time_intervals>0</use_dd_time_intervals>
                 <use_bed_eta>1</use_bed_eta>
             </integrations>
+            <pdp_widget>
+                <enabled>1</enabled>
+                <display_mode>per_store</display_mode>
+            </pdp_widget>
             <notifications>
                 <send_pickup_ready>1</send_pickup_ready>
                 <send_staff_alert>1</send_staff_alert>

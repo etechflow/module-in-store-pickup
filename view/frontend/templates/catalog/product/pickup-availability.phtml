@@ -1,0 +1,83 @@
+<?php
+declare(strict_types=1);
+
+/**
+ * PDP "Click & Collect available" widget template.
+ *
+ * Companion to ETechFlow\InStorePickup\Block\Catalog\Product\PickupAvailability.
+ *
+ * @var \ETechFlow\InStorePickup\Block\Catalog\Product\PickupAvailability $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+
+if (!$block->isWidgetEnabled()) {
+    return;
+}
+
+$stores = $block->getStores();
+if (empty($stores)) {
+    return;
+}
+
+$mode      = $block->getDisplayMode();
+$isPerStore = $mode === \ETechFlow\InStorePickup\Block\Catalog\Product\PickupAvailability::MODE_PER_STORE;
+?>
+<div class="etechflow-isp-pdp-availability my-4 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
+    <div class="flex items-start gap-3">
+        <svg class="h-5 w-5 flex-shrink-0 mt-0.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+        </svg>
+        <div class="flex-1 min-w-0">
+            <strong class="block text-sm font-semibold text-slate-900">
+                <?= $escaper->escapeHtml(__('Click &amp; Collect available')) ?>
+            </strong>
+
+            <?php if (!$isPerStore): ?>
+                <!-- Mode A — simple notice -->
+                <p class="mt-1 text-sm text-slate-700">
+                    <?= $escaper->escapeHtml(
+                        __('Pick up at any of our %1 shops at checkout. Free, same-day where stock allows.', $block->getStoreCount())
+                    ) ?>
+                </p>
+            <?php else: ?>
+                <!-- Mode B — per-store list with optional stock numbers -->
+                <ul class="mt-2 space-y-0.5">
+                    <?php foreach ($stores as $store):
+                        $qty = $store['stock_qty'];
+                        // None mapped / MSI unavailable → no stock pip.
+                        // qty > 0  → ✓ green "in stock" or "X in stock".
+                        // qty == 0 → ✗ muted "out of stock".
+                        if ($qty === null) {
+                            $pipClass  = 'text-slate-500';
+                            $pipIcon   = '•';
+                            $pipLabel  = '';
+                        } elseif ($qty > 0) {
+                            $pipClass  = 'text-green-700';
+                            $pipIcon   = '✓';
+                            $pipLabel  = $qty === 1
+                                ? __('1 in stock')
+                                : __('%1 in stock', $qty);
+                        } else {
+                            $pipClass  = 'text-slate-400';
+                            $pipIcon   = '✗';
+                            $pipLabel  = __('out of stock');
+                        }
+                        ?>
+                        <li class="flex items-baseline gap-2 text-sm">
+                            <span class="<?= $escaper->escapeHtmlAttr($pipClass) ?> font-bold w-4 text-center" aria-hidden="true"><?= $pipIcon ?></span>
+                            <span class="text-slate-900"><?= $escaper->escapeHtml($store['name']) ?></span>
+                            <?php if ($pipLabel !== ''): ?>
+                                <span class="text-xs <?= $escaper->escapeHtmlAttr($pipClass) ?>">
+                                    (<?= $escaper->escapeHtml((string) $pipLabel) ?>)
+                                </span>
+                            <?php endif; ?>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+                <p class="mt-2 text-xs text-slate-500">
+                    <?= $escaper->escapeHtml(__('Pick a shop at checkout. Free, same-day where stock allows.')) ?>
+                </p>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>

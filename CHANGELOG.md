@@ -4,6 +4,57 @@ All notable changes to this module. Adheres to [Semantic Versioning](https://sem
 
 ---
 
+## [1.2.0] — 2026-05-22 — Product-page "Click & Collect available" widget
+
+Closes the visible feature gap between checkout-only ISP and competitor modules (Amasty Store Pickup, MageWorx, Wyomind) which all surface Click & Collect on the product page itself. Until now ISP only showed up at checkout — customers had no way to know C&C was available before committing to buy.
+
+### Added
+
+- **New PDP block** `ETechFlow\InStorePickup\Block\Catalog\Product\PickupAvailability` mounted under `product.info.price` via `view/frontend/layout/catalog_product_view.xml`. Renders a small "Click & Collect available" panel with two configurable modes:
+
+  **Mode A — Simple notice** (matches what most cheaper competitor modules ship):
+  ```
+  🏪 Click & Collect available
+     Pick up at any of our 3 shops at checkout. Free, same-day where stock allows.
+  ```
+
+  **Mode B — Per-store list with live MSI stock** (default — matches Amasty's headline PDP feature):
+  ```
+  🏪 Click & Collect available
+     ✓ Maldon       (3 in stock)
+     ✓ Chelmsford   (1 in stock)
+     ✗ Witham       (out of stock)
+     Pick a shop at checkout.
+  ```
+
+  Mode B iterates active pickup stores; for each store with an `msi_source_code` set (configurable on each store's admin form), queries `Magento_InventoryApi/GetSourceItemsBySkuInterface` for the current product's per-source quantity. Stores without an MSI mapping still appear in the list, just without a stock badge. Magento_InventoryApi is soft-detected so the module survives on stripped builds where MSI is absent — Mode B silently degrades to "available at: X stores" with no stock counts.
+
+- **Admin config** under `Stores → Configuration → eTechFlow → In-Store Pickup → Product Page Widget`:
+  - `Enable` (default: Yes) — turn the PDP block on/off
+  - `Display Mode` (default: Per-store list with stock) — switch between Mode A and Mode B
+
+### Notes
+
+This release intentionally does NOT include:
+- Pre-selecting the store from PDP through to checkout (would need quote-level `pickup_preferred_store_id` storage; v1.3.0 candidate)
+- Cart-page Click & Collect banner (v1.3.0 candidate)
+- Catalog list filter "available at my store" (heavy; deferred unless a customer asks)
+- Map-based store locator (Amasty sells that as a separate paid add-on; we'd do the same)
+
+### Migration
+
+```
+composer update etechflow/module-in-store-pickup
+bin/magento setup:upgrade
+bin/magento setup:di:compile
+bin/magento setup:static-content:deploy -f
+bin/magento cache:flush
+```
+
+No schema changes. Pure additive — existing stores with `msi_source_code` unset still work, just don't show stock numbers on PDP.
+
+---
+
 ## [1.1.15] — 2026-05-22 — sortOrder 88 → 68 (park above Amasty)
 
 ### Fixed

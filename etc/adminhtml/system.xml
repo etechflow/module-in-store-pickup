@@ -205,6 +205,49 @@
                 </field>
             </group>
 
+            <group id="pdp_widget"
+                   translate="label"
+                   type="text"
+                   sortOrder="22"
+                   showInDefault="1"
+                   showInWebsite="1"
+                   showInStore="1">
+                <label>Product Page Widget</label>
+                <comment><![CDATA[
+                    Shows a "Click &amp; Collect available" notice on every product page.
+                    Lets customers know pickup is an option BEFORE they reach checkout —
+                    typically the single biggest C&amp;C conversion driver.
+                ]]></comment>
+                <field id="enabled"
+                       translate="label comment"
+                       type="select"
+                       sortOrder="10"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>Enable</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>When No, the PDP block renders nothing — customers only see the pickup option at checkout.</comment>
+                </field>
+                <field id="display_mode"
+                       translate="label comment"
+                       type="select"
+                       sortOrder="20"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>Display Mode</label>
+                    <source_model>ETechFlow\InStorePickup\Model\Source\PdpDisplayMode</source_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                    <comment><![CDATA[
+                        <strong>Simple notice</strong> — one-line "Click &amp; Collect available at our N shops" message. No stock query.<br/>
+                        <strong>Per-store list with stock</strong> — list each active store with a live MSI stock count for THIS product (✓ Maldon (3 in stock), ✗ Witham (out of stock)). Requires each store to have its <em>MSI Source Code</em> field set on the store form; stores without a mapping show without a stock number.
+                    ]]></comment>
+                </field>
+            </group>
+
             <group id="admin_autofill"
                    translate="label"
                    type="text"

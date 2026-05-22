@@ -4,6 +4,34 @@ All notable changes to this module. Adheres to [Semantic Versioning](https://sem
 
 ---
 
+## [1.1.14] — 2026-05-22 — Fix eTechFlow sidebar position + Configuration column grouping
+
+Two corrections to the v1.1.13 mega-menu pilot after live-test on Keystation Hyva Commerce admin.
+
+### Fixed
+
+- **Sidebar position parked at the bottom instead of "near Stores".** v1.1.13 used `sortOrder=305` expecting that to land just after Magento's Stores (typical core sortOrder ~300). Hyva Commerce admin's stock entries cap around 100, so 305 sent us to the very bottom of the sidebar under "Find Partners & Extensions". **Fix:** dropped `sortOrder` to `88` — clusters with the established vendor extensions (Amasty, Magefan, typically 85–89) just above Magento's Stores. Verified live: 305 → bottom; 88 → next to Amasty.
+
+- **Configuration leaf dangling at the bottom of the panel with a big vertical gap.** v1.1.13 declared `eTechFlow::configuration` as a direct child of `eTechFlow::root`. Magento's mega-menu lays out parent-with-children entries first (as columns), then dangles leaves separately at the bottom — so Configuration appeared orphaned below "Pickup Windows" instead of grouped. **Fix:** introduced `eTechFlow::settings` as a column header (`parent=eTechFlow::root`, `sortOrder=500`); Configuration now lives inside it (`parent=eTechFlow::settings`, `sortOrder=10`). The mega-menu renders Settings as its own column, matching how Magento's own Stores mega-menu groups its leaves under a "Settings" column rather than letting them dangle.
+
+When other eTechFlow modules ship the same pattern, the shared `eTechFlow::settings` id merges into one column and each module's Configuration entry collapses into a single leaf inside it.
+
+### Migration
+
+```
+composer update etechflow/module-in-store-pickup
+bin/magento setup:upgrade
+bin/magento setup:di:compile
+bin/magento setup:static-content:deploy -f
+bin/magento cache:flush
+```
+
+Hyva-admin requires `setup:static-content:deploy -f` between `di:compile` and `cache:flush` on production-mode installs — otherwise admin pages 500 with a missing `view_preprocessed/root.phtml`.
+
+No schema changes. No data migration. Pure menu-layout adjustment.
+
+---
+
 ## [1.1.13] — 2026-05-22 — Dedicated "eTechFlow" top-level sidebar entry (pilot)
 
 Until now, ISP's admin pages lived inside Magento's stock Stores menu (Stores → Settings → In-Store Pickup → …). Visually indistinguishable from core menu entries — merchants couldn't tell at a glance which items were paid eTechFlow extensions vs stock Magento. Established vendors (Amasty, Magefan, MageWorx) all anchor their modules under a dedicated top-level sidebar group with their brand name. This patch starts that pattern for eTechFlow with ISP as the pilot module.

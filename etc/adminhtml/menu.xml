@@ -11,14 +11,16 @@
             Hovering it opens a mega-menu where each module contributes one
             column (or a single link if the module has only one page).
 
-            sortOrder 305 lands just after Magento's Stores (typically 300)
-            and before System (310). Customers can re-order via menu.xsd
-            overrides if they need a different position.
+            sortOrder 88 clusters us with the established vendor extensions
+            (Amasty, Magefan typically sit around 85–89) just above Magento's
+            Stores entry. Going higher (e.g. 305) parks us at the very bottom
+            of the sidebar under "Find Partners & Extensions", which is where
+            Hyva-admin's auto-grown items end up.
         -->
         <add id="eTechFlow::root"
              title="eTechFlow"
              module="ETechFlow_InStorePickup"
-             sortOrder="305"
+             sortOrder="88"
              resource="Magento_Backend::admin"/>
 
         <add id="ETechFlow_InStorePickup::isp_root"
@@ -69,18 +71,34 @@
              resource="ETechFlow_InStorePickup::pickup_windows"/>
 
         <!--
-            Shared "Configuration" leaf at the bottom of the eTechFlow
-            sidebar group. All eTechFlow modules declare this same id
-            with their own section URL — Magento merges so only one
-            entry appears, and clicking it opens Stores → Configuration
-            with the eTechFlow tab pre-expanded. Any module's section
-            URL works because they all live under <tab id="etechflow">.
+            Shared "Settings" column header in the eTechFlow mega-menu.
+
+            Declared identically by every eTechFlow module so it merges to
+            one column. The Configuration leaf (below) lives inside it so
+            it gets a proper column home in the mega-menu — orphan leaves
+            siblings of column-header parents dangle awkwardly at the
+            bottom of the panel.
+        -->
+        <add id="eTechFlow::settings"
+             title="Settings"
+             module="ETechFlow_InStorePickup"
+             sortOrder="500"
+             parent="eTechFlow::root"
+             resource="Magento_Backend::admin"/>
+
+        <!--
+            Shared "Configuration" leaf inside the Settings column.
+            All eTechFlow modules declare this same id with their own
+            section URL — Magento merges so only one entry appears, and
+            clicking it opens Stores → Configuration with the eTechFlow
+            tab pre-expanded. Any module's section URL works because
+            they all live under <tab id="etechflow">.
         -->
         <add id="eTechFlow::configuration"
              title="Configuration"
              module="ETechFlow_InStorePickup"
-             sortOrder="900"
-             parent="eTechFlow::root"
+             sortOrder="10"
+             parent="eTechFlow::settings"
              action="adminhtml/system_config/edit/section/etechflow_instorepickup"
              resource="Magento_Config::config"/>
     </menu>

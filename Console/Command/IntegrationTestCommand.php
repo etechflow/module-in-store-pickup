@@ -336,7 +336,11 @@ class IntegrationTestCommand extends Command
         $this->assert($this->pickupCarrier->isActive(), 'Carrier: isActive=true', $output);
         $this->assert($this->pickupCarrier->getCarrierCode() === 'etechflow_isp', 'Carrier: code=etechflow_isp', $output);
 
-        // collectRates with a minimal request: should yield one method per active store.
+        // v2.0+: carrier returns ONE unified "pickup" method, not one per store.
+        // The actual store is picked separately inside the modal flow; the carrier
+        // just answers "is in-store pickup available at all" for this destination.
+        // (Pre-v2.0 returned one method per active store named etechflow_isp_<code>;
+        // this assertion was updated in v2.0.1 to match the new architecture.)
         $request = new RateRequest();
         $request->setDestCountryId('GB');
         $request->setPackageWeight(0);
@@ -344,11 +348,24 @@ class IntegrationTestCommand extends Command
 
         $result = $this->pickupCarrier->collectRates($request);
         $methods = $result ? $result->getAllRates() : [];
-        $this->assert(count($methods) > 0, 'Carrier: collectRates returns ≥1 method', $output);
+        $this->assert(count($methods) === 1, 'Carrier: collectRates returns exactly 1 method', $output);
 
-        $codes = array_map(fn ($m) => $m->getMethod(), $methods);
-        $hasOurStore = (bool) array_filter($codes, fn ($c) => str_contains($c, self::TEST_PREFIX . 'main'));
-        $this->assert($hasOurStore, 'Carrier: includes _isptest_main method', $output);
+        $code = $methods[0]->getMethod();
+        $this->assert(
+            $code === \ETechFlow\InStorePickup\Model\Carrier\InStorePickup::METHOD_CODE,
+            "Carrier: method code is 'pickup' (got '{$code}')",
+            $output
+        );
+
+        // The presence of an active store still matters — without one, collectRates
+        // returns false and no methods are offered. Confirm at least one active
+        // store exists in the test fixture (the _isptest_main store created earlier).
+        $activeStores = $this->storeRepository->getAllActive();
+        $this->assert(
+            count($activeStores) >= 1,
+            'Carrier: at least one active store exists (precondition for offering pickup)',
+            $output
+        );
     }
 
     private function testAutofillPlugin(OutputInterface $output): void

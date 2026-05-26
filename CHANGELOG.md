@@ -4,6 +4,44 @@ All notable changes to this module. Adheres to [Semantic Versioning](https://sem
 
 ---
 
+## [2.0.1] — 2026-05-26 — Fix integration-test carrier assertion + v2.0.0 always-a-patch follow-up
+
+Pure test + patch hygiene. No customer-facing changes, no schema changes,
+no behaviour changes.
+
+### Fixed
+
+- **Integration-test carrier section reported a false failure on v2.0.0.**
+  `etechflow:isp:integration-test` was asserting the v1.x architecture
+  (one shipping method per active store, named `etechflow_isp_<store_code>`).
+  v2.0.0 changed the carrier to return a single unified `pickup` method,
+  with the actual store choice happening separately inside the modal flow.
+  The carrier code was correct; only the test assertion was stale.
+  Updated to assert the new behaviour: exactly one method returned, code
+  matches `Carrier\InStorePickup::METHOD_CODE` (`pickup`), at least one
+  active store exists as a precondition. Result: `integration-test` now
+  passes 40/40 instead of 39/40.
+
+### Added
+
+- **`Setup/Patch/Data/V201ReleaseMarker.php`** — continues the
+  always-a-patch discipline. Same template as `V200ReleaseMarker`; depends
+  on it so patches run in version order.
+
+### Migration
+
+```bash
+composer require etechflow/module-in-store-pickup:^2.0.1
+bin/magento setup:upgrade
+bin/magento setup:di:compile
+bin/magento cache:flush
+```
+
+No schema change. `setup:upgrade` registers `V201ReleaseMarker` in
+`patch_list` and advances `setup_module.data_version` to 2.0.1.
+
+---
+
 ## [2.0.0] — 2026-05-26 — Pickup slot booking + native checkout integration + admin lifecycle
 
 Major release. Adds end-to-end pickup-slot booking (the "deferred to v2.0"

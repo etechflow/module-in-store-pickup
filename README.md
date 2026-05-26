@@ -66,6 +66,54 @@ bin/magento etechflow:isp:verify
 
 Phase 1 verify confirms license + config + all 11 tables exist.
 
+## Troubleshooting
+
+### PDP "Click & Collect available" block appears in the wrong place
+
+The module's default layout ships:
+
+```xml
+<referenceBlock name="product.info.main">
+    <block class="ETechFlow\InStorePickup\Block\Catalog\Product\PickupAvailability"
+           name="etechflow.isp.pdp.availability"
+           template="ETechFlow_InStorePickup::catalog/product/pickup-availability.phtml"
+           after="product.info.price"/>
+</referenceBlock>
+```
+
+This targets the canonical Magento PDP info container (`product.info.main`) and places the availability block immediately after the price block — i.e. directly under the buy box. On stock Luma + most Hyvä installs this is correct out of the box.
+
+**Symptom:** on stores running a custom theme, the block can render in an unrelated/broken location (e.g. far down the page near the footer, or inside a hidden template fragment).
+
+**Cause:** the custom theme's PDP template renders `product.info.main` in a non-standard slot, or doesn't render that container at all and uses its own buy-box markup. The module's `<referenceBlock>` target then either lands in a dead slot or gets pushed to an unexpected position by the theme's own layout updates.
+
+**Fix lives in the theme, not the module.** Edit your custom theme's `Magento_Catalog/layout/catalog_product_view.xml` (and the buy-box template if your theme overrides it) to reference the block by name and move it into the correct buy-box column. Typical pattern:
+
+```xml
+<!-- in your custom theme's catalog_product_view.xml -->
+<move element="etechflow.isp.pdp.availability"
+      destination="<your-theme-buy-box-container>"
+      after="<your-theme-add-to-cart-block>"/>
+```
+
+If your theme replaces the buy box with a custom `.phtml` fragment, you can also render the block by name directly inside that template:
+
+```php
+<?= $block->getLayout()->getBlock('etechflow.isp.pdp.availability')?->toHtml() ?>
+```
+
+Either approach keeps the module unchanged and respects your theme conventions. Shipping a "fix" in the module itself would either no-op on themes that override the layout (theme wins) or break placement on stock themes (where the module default is correct).
+
+### Block is in the right place but shows nothing
+
+That's a behaviour, not a bug. The block renders only when:
+
+- The module is enabled in admin
+- At least one ISP store is active
+- The current product is purchasable from that store
+
+Verify with `bin/magento etechflow:isp:verify` — if all checks pass and the block still doesn't render, the gating is correct and there's nothing to fix.
+
 ## License
 
 Proprietary — see `LICENSE.txt`. Commercial licenses available at <https://etechflow.com>.

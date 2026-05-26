@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!--
+    v2.0 — Same modal wiring for the standard Magento checkout
+    (in case Hyvä Checkout isn't enabled). The body container differs
+    so we target the generic <body> reference.
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="ETechFlow_InStorePickup::css/pickup-modal.css"/>
+        <script src="ETechFlow_InStorePickup::js/pickup-modal.js"/>
+    </head>
+    <body>
+        <referenceContainer name="content">
+            <block class="Magento\Framework\View\Element\Template"
+                   name="etechflow.isp.checkout.pickup_modal.luma"
+                   template="ETechFlow_InStorePickup::checkout/pickup-modal.phtml"/>
+        </referenceContainer>
+    </body>
+</page>

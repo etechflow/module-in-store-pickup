@@ -1,0 +1,39 @@
+<?php
+declare(strict_types=1);
+
+/** @var \ETechFlow\InStorePickup\Block\Adminhtml\Sales\Order\PickupInfo $block */
+/** @var \Magento\Framework\Escaper $escaper */
+
+$info = $block->getPickupInfo();
+if (!$info) {
+    return;
+}
+?>
+<style>
+.etechflow-isp-pickup-info { margin: 16px 0; padding: 14px 16px;
+  border: 1px solid #d9e1ec; background: #f6faff; border-radius: 6px; }
+.etechflow-isp-pickup-info h4 { margin: 0 0 8px; color: #1f3a68; font-size: 14px; }
+.etechflow-isp-pickup-info dl { display: grid; grid-template-columns: 150px 1fr;
+  gap: 4px 12px; margin: 0; font-size: 13px; }
+.etechflow-isp-pickup-info dt { color: #555; font-weight: 600; }
+.etechflow-isp-pickup-info dd { margin: 0; color: #222; }
+.etechflow-isp-pickup-info .etechflow-isp-when { font-weight: 600; color: #1f3a68; }
+</style>
+<div class="etechflow-isp-pickup-info">
+    <h4><?= $escaper->escapeHtml(__('In-Store Pickup details')) ?></h4>
+    <dl>
+        <dt><?= $escaper->escapeHtml(__('Location')) ?></dt>
+        <dd><?= $escaper->escapeHtml($info['store_name']) ?></dd>
+
+        <dt><?= $escaper->escapeHtml(__('Address')) ?></dt>
+        <dd><?= $escaper->escapeHtml($info['store_address']) ?></dd>
+
+        <?php if ($info['store_phone']): ?>
+        <dt><?= $escaper->escapeHtml(__('Phone')) ?></dt>
+        <dd><?= $escaper->escapeHtml($info['store_phone']) ?></dd>
+        <?php endif; ?>
+
+        <dt><?= $escaper->escapeHtml(__('Pickup time')) ?></dt>
+        <dd class="etechflow-isp-when"><?= $escaper->escapeHtml($info['pretty']) ?></dd>
+    </dl>
+</div>

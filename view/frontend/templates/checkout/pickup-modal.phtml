@@ -1,0 +1,64 @@
+<?php
+declare(strict_types=1);
+
+/**
+ * v2.0 — Pickup slot modal. Renders OUTSIDE the shipping-methods list,
+ * but visibility is JS-driven (opens when the customer clicks the
+ * "Pick up in store" radio). 3 steps inside: location → date → slot.
+ *
+ * Communication with checkout: the modal POSTs to /etechflow_isp/pickup/select
+ * which saves the choice on the quote. The carrier reads it on its
+ * next rate request, producing the updated method title.
+ *
+ * @var \Magento\Framework\View\Element\Template $block
+ * @var \Magento\Framework\Escaper $escaper
+ * @var \Magento\Framework\Data\Form\FormKey $formKey
+ */
+$formKey = $block->getData('form_key') ?: '';
+if (!$formKey) {
+    $formKey = $block->getLayout()->createBlock(\Magento\Framework\View\Element\FormKey::class)->toHtml();
+}
+?>
+<div id="ks-isp-modal" class="ks-isp-modal" hidden style="display:none" role="dialog" aria-modal="true"
+     data-stores-url="<?= $escaper->escapeHtmlAttr($block->getUrl('etechflow_isp/pickup/stores')) ?>"
+     data-dates-url="<?= $escaper->escapeHtmlAttr($block->getUrl('etechflow_isp/pickup/dates')) ?>"
+     data-slots-url="<?= $escaper->escapeHtmlAttr($block->getUrl('etechflow_isp/pickup/slots')) ?>"
+     data-select-url="<?= $escaper->escapeHtmlAttr($block->getUrl('etechflow_isp/pickup/select')) ?>">
+    <div class="ks-isp-modal-inner">
+        <button type="button" class="ks-isp-modal-close" aria-label="<?= $escaper->escapeHtmlAttr(__('Close')) ?>">&times;</button>
+        <h3 class="ks-isp-modal-title"><?= $escaper->escapeHtml(__('Choose your pickup location & time')) ?></h3>
+
+        <!-- Step 1: Locations -->
+        <section class="ks-isp-step ks-isp-step-loc" data-step="loc">
+            <h4><?= $escaper->escapeHtml(__('1. Select a location')) ?></h4>
+            <div class="ks-isp-list ks-isp-stores-list">
+                <span class="ks-isp-loading"><?= $escaper->escapeHtml(__('Loading locations…')) ?></span>
+            </div>
+        </section>
+
+        <!-- Step 2: Dates -->
+        <section class="ks-isp-step ks-isp-step-date" data-step="date" hidden style="display:none">
+            <h4><?= $escaper->escapeHtml(__('2. Pick a date')) ?></h4>
+            <p class="ks-isp-help"><?= $escaper->escapeHtml(__('From tomorrow up to 14 days ahead. Closed days are hidden.')) ?></p>
+            <div class="ks-isp-list ks-isp-dates-list">
+                <span class="ks-isp-loading"><?= $escaper->escapeHtml(__('Loading dates…')) ?></span>
+            </div>
+        </section>
+
+        <!-- Step 3: Time slots -->
+        <section class="ks-isp-step ks-isp-step-slot" data-step="slot" hidden style="display:none">
+            <h4><?= $escaper->escapeHtml(__('3. Pick a time slot')) ?></h4>
+            <p class="ks-isp-help"><?= $escaper->escapeHtml(__('Each slot is 1 hour. Greyed-out slots are full.')) ?></p>
+            <div class="ks-isp-list ks-isp-slots-list">
+                <span class="ks-isp-loading"><?= $escaper->escapeHtml(__('Loading times…')) ?></span>
+            </div>
+        </section>
+
+        <div class="ks-isp-modal-status" role="status" aria-live="polite"></div>
+
+        <div class="ks-isp-modal-actions">
+            <button type="button" class="ks-isp-back" hidden style="display:none"><?= $escaper->escapeHtml(__('Back')) ?></button>
+            <button type="button" class="ks-isp-confirm" disabled><?= $escaper->escapeHtml(__('Confirm pickup')) ?></button>
+        </div>
+    </div>
+</div>

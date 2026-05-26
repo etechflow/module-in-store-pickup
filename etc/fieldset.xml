@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!--
+    v2.0 — fieldset config so Magento automatically copies the chosen
+    pickup store + slot from quote → sales_order at convertQuoteToOrder
+    time. Without this, the order rows for these new columns stay NULL
+    even though the quote has the customer's selection.
+
+    The `to_order` mapping is exactly what the standard Magento_Sales
+    module uses to mirror quote.customer_email → order.customer_email etc.
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Sales:etc/fieldset.xsd">
+    <scope id="global">
+        <fieldset id="sales_convert_quote">
+            <field name="etechflow_isp_pickup_store_id">
+                <aspect name="to_order"/>
+            </field>
+            <field name="etechflow_isp_pickup_at">
+                <aspect name="to_order"/>
+            </field>
+        </fieldset>
+    </scope>
+</config>

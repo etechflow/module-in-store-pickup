@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!--
+    v2.0 — Add a "Pickup Slot" column to the standard sales_order grid.
+    The column reads from sales_order_grid.etechflow_isp_pickup_at,
+    which is populated by OrderGridSyncObserver on order placement.
+
+    Sortable + filterable by date range so staff can plan the cutting
+    queue ("show me Friday's pickups").
+
+    visible=false by default — admin can enable via the "Columns" UI
+    on the orders grid (so we don't break existing column layouts for
+    merchants who don't use pickup).
+-->
+<listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <columns name="sales_order_columns">
+        <column name="etechflow_isp_pickup_at" sortOrder="55">
+            <settings>
+                <filter>dateRange</filter>
+                <dataType>date</dataType>
+                <label translate="true">Pickup Slot</label>
+                <visible>false</visible>
+                <timezone>true</timezone>
+            </settings>
+        </column>
+    </columns>
+</listing>

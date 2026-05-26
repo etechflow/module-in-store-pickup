@@ -1,0 +1,110 @@
+/* ETechFlow In-Store Pickup v2.0 — Modal styles */
+
+.ks-isp-modal {
+  position: fixed; inset: 0; z-index: 10001;
+  background: rgba(15, 28, 53, 0.55);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px; box-sizing: border-box;
+}
+.ks-isp-modal[hidden] { display: none !important; }
+
+.ks-isp-modal-inner {
+  background: #fff; border-radius: 10px;
+  width: 560px; max-width: 100%; max-height: 90vh; overflow: auto;
+  padding: 24px 28px;
+  box-shadow: 0 12px 36px rgba(0,0,0,.30);
+  position: relative;
+}
+.ks-isp-modal-close {
+  position: absolute; top: 12px; right: 14px;
+  background: none; border: 0; font-size: 26px; line-height: 1;
+  cursor: pointer; color: #555; padding: 4px 10px; border-radius: 4px;
+}
+.ks-isp-modal-close:hover { background: #f0f0f0; }
+
+.ks-isp-modal-title {
+  margin: 0 0 16px; font-size: 18px; color: #1f3a68;
+  border-bottom: 1px solid #eee; padding-bottom: 10px;
+}
+
+.ks-isp-step h4 {
+  margin: 12px 0 6px; font-size: 14px; color: #444; font-weight: 600;
+}
+.ks-isp-help { font-size: 12px; color: #777; margin: 0 0 10px; }
+
+.ks-isp-list {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  max-height: 320px; overflow: auto;
+}
+.ks-isp-step-loc .ks-isp-list { flex-direction: column; }
+.ks-isp-step-date .ks-isp-list { gap: 6px; }
+.ks-isp-step-slot .ks-isp-list { gap: 6px; }
+
+.ks-isp-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid #d8d8d8; border-radius: 6px;
+  cursor: pointer; transition: background .15s ease, border-color .15s ease;
+  background: #fff;
+}
+.ks-isp-step-loc .ks-isp-row { width: 100%; }
+.ks-isp-step-date .ks-isp-row,
+.ks-isp-step-slot .ks-isp-row {
+  width: calc(50% - 4px); align-items: center;
+}
+.ks-isp-row:hover { background: #f5f8ff; border-color: #4f81bd; }
+.ks-isp-row input[type=radio] { margin-top: 2px; cursor: pointer; }
+.ks-isp-row-meta {
+  display: flex; flex-direction: column; gap: 2px; flex: 1;
+}
+.ks-isp-row-meta strong { font-size: 14px; color: #1f3a68; font-weight: 600; }
+.ks-isp-row-addr { font-size: 12px; color: #666; }
+.ks-isp-row-phone { font-size: 12px; color: #888; }
+
+.ks-isp-row.is-full { opacity: .55; cursor: not-allowed; background: #f8f8f8; }
+.ks-isp-row.is-full:hover { background: #f8f8f8; border-color: #d8d8d8; }
+
+.ks-isp-row-full {
+  font-size: 11px; color: #c0392b; font-weight: 600;
+}
+.ks-isp-row-left {
+  font-size: 11px; color: #d99202; font-weight: 600;
+}
+
+.ks-isp-loading {
+  font-size: 13px; color: #888; padding: 12px;
+}
+.ks-isp-empty {
+  font-size: 13px; color: #777; padding: 12px;
+  background: #fafafa; border-radius: 6px; margin: 0;
+}
+
+.ks-isp-modal-status:not(:empty) {
+  margin: 12px 0;
+  padding: 8px 12px;
+  border-radius: 5px;
+  background: #f6faff;
+  border-left: 4px solid #4f81bd;
+  font-size: 13px;
+}
+.ks-isp-modal-status.is-error {
+  background: #fdf3f3; border-left-color: #c0392b; color: #7c1a14;
+}
+
+.ks-isp-modal-actions {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 18px; padding-top: 14px; border-top: 1px solid #eee;
+}
+.ks-isp-back, .ks-isp-confirm {
+  padding: 10px 16px; border-radius: 5px; font-weight: 600; font-size: 13px;
+  cursor: pointer; border: 0;
+}
+.ks-isp-back {
+  background: #f1f1f1; color: #444;
+}
+.ks-isp-back:hover { background: #e6e6e6; }
+.ks-isp-confirm {
+  background: #1f3a68; color: #fff; min-width: 160px;
+}
+.ks-isp-confirm:hover { background: #2c4a82; }
+.ks-isp-confirm[disabled] { opacity: .45; cursor: not-allowed; }

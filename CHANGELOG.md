@@ -4,6 +4,134 @@ All notable changes to this module. Adheres to [Semantic Versioning](https://sem
 
 ---
 
+## [2.0.0] — 2026-05-26 — Pickup slot booking + native checkout integration + admin lifecycle
+
+Major release. Adds end-to-end pickup-slot booking (the "deferred to v2.0"
+work from the v1.3.1 changelog), native Magento checkout integration (not
+just Hyvä), and a full admin lifecycle for managing pickup orders.
+
+### ⚠️ Breaking changes
+
+- **Major version bump (1.x → 2.0).** Per semver, treat this as a
+  non-trivial upgrade. Schema changes touch Magento core tables (`quote`,
+  `sales_order`, `sales_order_grid`). Test on staging before promoting.
+- **Schema additions are persistent.** Uninstalling the module via
+  Composer would drop the new columns AND any pickup-slot data stored on
+  completed orders. Back up the `sales_order` table before any uninstall
+  if you've taken pickup orders.
+
+### Added
+
+#### Booking layer — customer picks an exact pickup datetime
+
+- **New columns on the `quote` and `sales_order` tables**:
+  - `etechflow_isp_pickup_store_id` (int, nullable) — selected store
+  - `etechflow_isp_pickup_at` (datetime, nullable) — chosen 1-hour slot
+  - Indexed for sortable/filterable admin grid access
+- **New column on `sales_order_grid`**: `etechflow_isp_pickup_at`,
+  indexed — drives the admin grid pickup-slot column.
+- **New column on the ISP store table**: `slot_capacity` (int, default
+  10) — max number of pickup bookings per 1-hour slot per store.
+- **No foreign keys.** Order history preserves which store was picked
+  even if that store is later deleted from the admin (denormalised for
+  audit accuracy).
+- **AJAX endpoints** (`Controller/Pickup/{Dates,Stores,Slots,Select}.php`)
+  power the new interactive picker.
+- **`PickupValidatorPlugin`** (`Plugin/Quote/`) — quote-level validation
+  that a pickup slot was selected before checkout completion.
+- **`fieldset.xml`** — carries pickup data through the quote → order
+  conversion (slot mirrors from quote to sales_order automatically).
+
+#### Checkout UI
+
+- **Native Magento checkout integration** —
+  `view/frontend/layout/checkout_index_index.xml` + pickup-modal
+  template. Previously v1.x supported only Hyvä Checkout (with a fallback
+  bare-radio path); v2.0 supports both.
+- **`pickup-modal.phtml`** — modal flow for date → store → slot
+  selection, backed by the AJAX endpoints. Frontend JS/CSS in
+  `view/frontend/web/`.
+
+#### Admin lifecycle
+
+- **Holiday CRUD** (`Controller/Adminhtml/Holiday/{Index,Edit,Delete,MassDelete}.php`)
+  — closes the holiday-management gap. Previously holidays were
+  database-managed; now editable via admin UI with mass-delete.
+- **"Mark Ready" order action** (`Controller/Adminhtml/Order/MarkReady.php`)
+  — admin button on the order detail page to flag a pickup order as
+  ready for collection. Wires into the staff-alert observer.
+- **Sales order grid extensions** (`view/adminhtml/ui_component/sales_order_grid.xml`)
+  — new sortable/filterable pickup-slot column in the admin orders grid.
+- **Sales order view extensions** (`Block/Adminhtml/Sales/`,
+  `view/adminhtml/layout/sales_order_view.xml`) — display the pickup
+  store + slot directly on the admin order detail page.
+
+#### Notifications
+
+- **`StaffAlertObserver`** (`Observer/`) — triggers email to staff when
+  a pickup order needs attention (configurable per-store recipient list).
+- **`OrderGridSyncObserver`** (`Observer/`) — keeps `sales_order_grid`
+  in sync with `sales_order` pickup columns so the admin grid filter/sort
+  works correctly.
+
+#### Hardening (the v1.7.0 lesson)
+
+- **`Setup/Patch/Data/V200ReleaseMarker.php`** — no-op release marker
+  patch. Establishes the "every release ships at least one patch"
+  discipline previously adopted in NDE v1.7.1 and BED v1.2.2. v2.0.0
+  alters core Magento tables; reliably advancing
+  `setup_module.data_version` matters more here than in any prior
+  release.
+
+### Changed
+
+- **Module sequence** in `etc/module.xml` now declares dependency on
+  `Magento_Sales`, `Magento_Customer`, `Magento_Ui` (required by the
+  admin grid columns + order detail view + customer-facing AJAX flow).
+
+### Migration
+
+```bash
+# 1. Take a sales_order + quote backup before upgrading.
+mysqldump -h $DB_HOST -u $DB_USER -p $DB_NAME quote sales_order > pre-isp-v2.sql
+
+# 2. Composer + Magento upgrade
+composer require etechflow/module-in-store-pickup:^2.0.0
+bin/magento setup:upgrade
+
+# 3. CRITICAL: verify data_version landed before flushing cache.
+# Skipping this check is what caused the NDE v1.7.0 incident.
+mysql ... -e "SELECT module, schema_version, data_version FROM setup_module WHERE module='ETechFlow_InStorePickup';"
+# Both columns should read 2.0.0. If data_version is stale, re-run
+# setup:upgrade — do NOT flush cache or you'll trigger 500s.
+
+bin/magento setup:di:compile
+bin/magento setup:static-content:deploy -f
+bin/magento cache:flush
+
+# 4. After deploy, sanity-check pickup orders in admin and verify the
+# new grid column is populated and filterable.
+```
+
+### Upgrade safety
+
+Schema additions on `quote` and `sales_order` are non-destructive
+(nullable columns, no FK constraints). Existing orders without pickup
+data have the new columns set to NULL and are unaffected.
+
+The `sales_order_grid` column addition triggers a one-time reindex on
+`bin/magento indexer:reindex sales_order_grid` — large stores (100k+
+orders) should expect a few minutes of grid-stale state during reindex.
+
+### Deferred to future releases
+
+- Per-product pickup-eligibility flag (currently all in-stock products
+  are pickup-eligible from any active store)
+- Pickup capacity overrides per holiday or per slot
+- Customer-facing pickup-reschedule self-service flow
+
+---
+
 ## [1.3.1] — 2026-05-22 — Pivot picker to informational card (Hyvä Checkout interactivity deferred)
 
 ### Changed

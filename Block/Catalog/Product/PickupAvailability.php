@@ -6,6 +6,7 @@ namespace ETechFlow\InStorePickup\Block\Catalog\Product;
 
 use ETechFlow\InStorePickup\Api\StoreRepositoryInterface;
 use ETechFlow\InStorePickup\Model\Config;
+use Magento\CatalogInventory\Api\StockRegistryInterface;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Registry;
 use Magento\Framework\View\Element\Template;
@@ -21,6 +22,15 @@ use Magento\Framework\View\Element\Template\Context;
  *                             the current product. Falls back to Mode A's text per-store
  *                             when a store has no msi_source_code mapped.
  *
+ * v1.2.1 — local-stock gate: when `pdp_widget/require_local_stock = 1` (default),
+ * the whole widget is suppressed for a product that has no local stock (qty <= 0
+ * or out of stock). This mirrors the checkout rule (NDE ShippingRestriction) that
+ * removes the pickup shipping method for out-of-local-stock items — a product
+ * fulfilled from a remote supplier can't be picked up from the shop, so we don't
+ * advertise Click & Collect for it on the PDP either. Container product types
+ * (configurable / bundle / grouped) are exempt: their stock lives on the child
+ * items, so the parent's own qty is not a reliable signal.
+ *
  * MSI is soft-detected so the module installs without Magento_InventoryApi (rare on
  * 2.3+ but possible on stripped builds). Without MSI, Mode B silently degrades to
  * "Available at: Maldon, Chelmsford, Witham" — same useful UX, no stock numbers.
@@ -30,11 +40,15 @@ class PickupAvailability extends Template
     public const MODE_SIMPLE    = 'simple';
     public const MODE_PER_STORE = 'per_store';
 
+    /** Product types whose stock is carried by their child items, not the parent. */
+    private const CONTAINER_TYPES = ['configurable', 'bundle', 'grouped'];
+
     public function __construct(
         Context $context,
         private readonly Config $config,
         private readonly StoreRepositoryInterface $storeRepository,
         private readonly Registry $registry,
+        private readonly StockRegistryInterface $stockRegistry,
         array $data = []
     ) {
         parent::__construct($context, $data);
@@ -42,14 +56,21 @@ class PickupAvailability extends Template
 
     /**
      * Master visibility — block renders nothing if false. Composes the module-
-     * level enable flag with the per-widget PDP toggle.
+     * level enable flag, the per-widget PDP toggle, and (v1.2.1) the local-stock
+     * gate for the current product.
      */
     public function isWidgetEnabled(): bool
     {
         if (!$this->config->isEnabled()) {
             return false;
         }
-        return $this->config->isPdpWidgetEnabled();
+        if (!$this->config->isPdpWidgetEnabled()) {
+            return false;
+        }
+        if ($this->config->isPdpRequireLocalStock() && !$this->hasLocalStockForCurrentProduct()) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -107,6 +128,41 @@ class PickupAvailability extends Template
     public function getStoreCount(): int
     {
         return count($this->getStores());
+    }
+
+    /**
+     * Whether the current PDP product has local stock available for pickup.
+     *
+     * Returns true (don't suppress) when we can't make a confident negative
+     * call — no product in registry, a container product type, a missing
+     * stock row read error, etc. Only a definitive "qty <= 0 / out of stock"
+     * returns false. Fail-open by design: a glitch should never wrongly hide
+     * a valid Click & Collect option.
+     */
+    private function hasLocalStockForCurrentProduct(): bool
+    {
+        $product = $this->registry->registry('current_product');
+        if ($product === null || !$product->getId()) {
+            return true;
+        }
+
+        // Container types carry stock on their children; the parent qty is not
+        // a reliable signal, so never suppress on it.
+        if (in_array((string) $product->getTypeId(), self::CONTAINER_TYPES, true)) {
+            return true;
+        }
+
+        try {
+            $stockItem = $this->stockRegistry->getStockItem((int) $product->getId());
+            if (!$stockItem || !$stockItem->getItemId()) {
+                // No CatalogInventory row at all → treat as no local stock,
+                // matching the checkout ineligibility check.
+                return false;
+            }
+            return $stockItem->getIsInStock() && (float) $stockItem->getQty() > 0;
+        } catch (\Throwable $e) {
+            return true; // fail open
+        }
     }
 
     /**

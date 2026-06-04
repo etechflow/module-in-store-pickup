@@ -38,6 +38,7 @@
             <pdp_widget>
                 <enabled>1</enabled>
                 <display_mode>per_store</display_mode>
+                <require_local_stock>1</require_local_stock>
             </pdp_widget>
             <notifications>
                 <send_pickup_ready>1</send_pickup_ready>

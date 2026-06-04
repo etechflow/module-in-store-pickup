@@ -29,6 +29,7 @@ class Config
     private const XML_PATH_SEND_STAFF_ALERT          = 'etechflow_instorepickup/notifications/send_staff_alert';
     private const XML_PATH_PDP_WIDGET_ENABLED        = 'etechflow_instorepickup/pdp_widget/enabled';
     private const XML_PATH_PDP_WIDGET_DISPLAY_MODE   = 'etechflow_instorepickup/pdp_widget/display_mode';
+    private const XML_PATH_PDP_REQUIRE_LOCAL_STOCK   = 'etechflow_instorepickup/pdp_widget/require_local_stock';
 
     public function __construct(
         private readonly ScopeConfigInterface $scopeConfig,
@@ -190,6 +191,24 @@ class Config
     {
         return (string) ($this->scopeConfig->getValue(self::XML_PATH_PDP_WIDGET_DISPLAY_MODE, ScopeInterface::SCOPE_STORE, $storeId)
             ?: 'per_store');
+    }
+
+    /**
+     * Whether the PDP widget is suppressed for products with no local stock
+     * (qty <= 0 / out of stock). Default ON — don't advertise Click & Collect
+     * for something not physically on the shelf. Mirrors the checkout rule
+     * (NDE) that removes the pickup method when an item lacks local stock.
+     *
+     * @param int|null $storeId
+     * @return bool
+     */
+    public function isPdpRequireLocalStock(?int $storeId = null): bool
+    {
+        $value = $this->scopeConfig->getValue(self::XML_PATH_PDP_REQUIRE_LOCAL_STOCK, ScopeInterface::SCOPE_STORE, $storeId);
+        if ($value === null || $value === '') {
+            return true;
+        }
+        return (bool) $value;
     }
 
     /**

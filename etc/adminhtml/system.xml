@@ -269,6 +269,20 @@
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment>When No, the PDP block renders nothing — customers only see the pickup option at checkout.</comment>
                 </field>
+                <field id="require_local_stock"
+                       translate="label comment"
+                       type="select"
+                       sortOrder="15"
+                       showInDefault="1"
+                       showInWebsite="1"
+                       showInStore="1">
+                    <label>Hide When No Local Stock</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                    <comment>When Yes, the PDP Click &amp; Collect notice is hidden for products with no local stock (qty 0 / out of stock), matching the checkout rule that removes the pickup method. Configurable/bundle/grouped parents are unaffected.</comment>
+                </field>
                 <field id="display_mode"
                        translate="label comment"
                        type="select"

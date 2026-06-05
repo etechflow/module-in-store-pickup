@@ -2,11 +2,24 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
-        <referenceBlock name="product.info.main">
+        <!--
+            Parent the PDP "Click & Collect available" widget to the
+            `product.info.additional` slot. This renders right after the
+            add-to-cart area on Luma, on the vanilla Hyva theme, and on
+            custom Hyva child themes alike.
+
+            (Previously parented to the `product.info.main` *container* with
+            `after="product.info.price"`. On Hyva-based themes `product.info.main`
+            is a container and the price lives inside the inner `product.info`
+            *block*, so the `after` reference was a no-op and the widget orphaned
+            to the bottom of the page. `product.info.additional` is a real,
+            rendered slot on every theme, so the widget lands in the buy box
+            without needing a per-theme layout override.)
+        -->
+        <referenceBlock name="product.info.additional">
             <block class="ETechFlow\InStorePickup\Block\Catalog\Product\PickupAvailability"
                    name="etechflow.isp.pdp.availability"
-                   template="ETechFlow_InStorePickup::catalog/product/pickup-availability.phtml"
-                   after="product.info.price"/>
+                   template="ETechFlow_InStorePickup::catalog/product/pickup-availability.phtml"/>
         </referenceBlock>
     </body>
 </page>

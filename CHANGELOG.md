@@ -4,7 +4,7 @@ All notable changes to this module. Adheres to [Semantic Versioning](https://sem
 
 ---
 
-## [2.2.2] — 2026-06-30 — Hide pickup at checkout for out-of-local-stock carts
+## [2.2.4] — 2026-06-30 — Hide pickup at checkout for out-of-local-stock carts
 
 ### Fixed
 

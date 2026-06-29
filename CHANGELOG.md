@@ -4,6 +4,12 @@ All notable changes to this module. Adheres to [Semantic Versioning](https://sem
 
 ---
 
+## [2.2.2] — 2026-06-30 — Hide pickup at checkout for out-of-local-stock carts
+
+### Fixed
+
+- **In-Store Pickup was offered at checkout regardless of stock.** The carrier's `collectRates()` only checked that the carrier was enabled and a store existed — it never looked at cart-item stock, so out-of-stock-but-saleable items (supplier/backorder, `is_in_stock=1` with `qty <= 0`) still showed Click & Collect. You can't collect what isn't physically in the store. Added `Model/Carrier/InStorePickup::cartHasLocalStock()`, called from `collectRates()`: if any cart item has no local stock (legacy CatalogInventory `is_in_stock && qty > 0`, the **same source as the PDP availability widget**, so PDP and checkout agree), the carrier returns no rate. All-or-nothing for mixed carts. Composite parents are skipped (children carry stock); virtual items ignored; fail-open per item on a transient lookup error. No constructor change (lazy `ObjectManager` lookup), so no `di:compile` impact for consumers patching in place.
+
 ## [2.1.1] — 2026-06-03 — Billing-period plans (weekly / monthly / yearly)
 
 ### Changed

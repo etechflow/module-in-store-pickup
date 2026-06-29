@@ -105,6 +105,14 @@ class InStorePickup extends AbstractCarrier implements CarrierInterface
                 return false;
             }
 
+            // Hide In-Store Pickup when any cart item has no local store stock
+            // (qty <= 0). You can't collect what isn't physically in the store.
+            // Mirrors the PDP availability widget's stock gate so PDP and
+            // checkout agree.
+            if (!$this->cartHasLocalStock($request)) {
+                return false;
+            }
+
             $result = $this->rateResultFactory->create();
             $result->append($this->buildSingleRateMethod($request));
             return $result;
@@ -117,6 +125,53 @@ class InStorePickup extends AbstractCarrier implements CarrierInterface
         } finally {
             Profiler::stop($span);
         }
+    }
+
+    /**
+     * True only if every physical cart item has local store stock (qty > 0).
+     *
+     * Uses legacy CatalogInventory — the same source as the PDP availability
+     * widget — so PDP and checkout agree on what is collectable. Fail-open per
+     * item on a transient lookup error; a definitive qty <= 0 (or a missing
+     * stock row) hides pickup. Composite parents are skipped (their child rows
+     * carry the stock); virtual/downloadable items are ignored.
+     *
+     * @return bool true = whole cart is in local stock (offer pickup)
+     */
+    private function cartHasLocalStock(RateRequest $request): bool
+    {
+        $items = $request->getAllItems() ?: [];
+        if (empty($items)) {
+            return true;
+        }
+
+        $stockRegistry = \Magento\Framework\App\ObjectManager::getInstance()
+            ->get(\Magento\CatalogInventory\Api\StockRegistryInterface::class);
+
+        foreach ($items as $item) {
+            // Composite parent (configurable/bundle): its child rows carry stock.
+            if (method_exists($item, 'getHasChildren') && $item->getHasChildren()) {
+                continue;
+            }
+            $product = $item->getProduct();
+            if ($product !== null && $product->getIsVirtual()) {
+                continue;
+            }
+            try {
+                $stockItem = $stockRegistry->getStockItem((int) $item->getProductId());
+            } catch (\Throwable $e) {
+                continue; // transient lookup error -> do not wrongly hide pickup
+            }
+            if (!$stockItem
+                || !$stockItem->getItemId()
+                || !$stockItem->getIsInStock()
+                || (float) $stockItem->getQty() <= 0
+            ) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
